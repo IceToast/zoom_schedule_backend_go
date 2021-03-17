@@ -1,23 +1,25 @@
 package main
 
 import (
-	"log"
+	"zoom_schedule_backend_go/routes"
 
-	"github.com/gin-gonic/gin"
-
-	"github.com/cavdy-play/go_mongo/config"
-	"github.com/cavdy-play/go_mongo/routes"
+	"github.com/gofiber/fiber"
+	"github.com/subosito/gotenv"
 )
 
-func main()  {
-	// Database
-	config.Connect()
+const port = 8011
+const dbName = "zoom_schedule"
+const collectionMeeting = "meeting"
 
-	// Init Router
-	router := gin.Default()
-
-	// Route Handlers / Endpoints
-	routes.Routes(router)
-
-	log.Fatal(router.Run(":4747"))
+func init() {
+	gotenv.Load()
 }
+
+func main() {
+	app := fiber.New()
+	app.Get("/meeting/:id?", routes.GetMeeting)
+	app.Post("/meeting", routes.CreateMeeting)
+	app.Put("/meeting/:id", routes.UpdateMeeting)
+	app.Delete("/meeting/:id", routes.DeleteMeeting)
+	app.Listen(port)
+  }
