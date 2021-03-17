@@ -6,7 +6,7 @@ import (
 
 	"zoom_schedule_backend_go/db"
 
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -21,11 +21,10 @@ type Meeting struct {
 const dbName = "zoom_schedule"
 const collectionName = "meeting"
 
-func GetMeeting(c *fiber.Ctx) {
+func GetMeeting(c *fiber.Ctx) error {
 	collection, err := db.GetMongoDbCollection(dbName, collectionName)
 	if err != nil {
-		c.Status(500).Send(err)
-		return
+		return c.Status(500).SendString(err.Error())
 	}
 
 	var filter bson.M = bson.M{}
@@ -41,27 +40,25 @@ func GetMeeting(c *fiber.Ctx) {
 	defer cur.Close(context.Background())
 
 	if err != nil {
-		c.Status(500).Send(err)
-		return
+		return c.Status(500).SendString(err.Error())
 	}
 
 	cur.All(context.Background(), &results)
 
 	if results == nil {
-		c.SendStatus(404)
-		return
+		return c.SendStatus(404)
 	}
 
 	json, _ := json.Marshal(results)
-	c.Send(json)
+	return c.Send(json)
 }
 
-func CreateMeeting(c *fiber.Ctx) {
+func CreateMeeting(c *fiber.Ctx) error {
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionName)
 	if err != nil {
-		c.Status(500).Send(err)
-		return
+
+		return c.Status(500).SendString(err.Error())
 	}
 
 	var meeting Meeting
@@ -69,19 +66,17 @@ func CreateMeeting(c *fiber.Ctx) {
 
 	res, err := collection.InsertOne(context.Background(), meeting)
 	if err != nil {
-		c.Status(500).Send(err)
-		return
+		return c.Status(500).SendString(err.Error())
 	}
 
 	response, _ := json.Marshal(res)
-	c.Send(response)
+	return c.Send(response)
 }
 
-func UpdateMeeting(c *fiber.Ctx) {
+func UpdateMeeting(c *fiber.Ctx) error {
 	collection, err := db.GetMongoDbCollection(dbName, collectionName)
 	if err != nil {
-		c.Status(500).Send(err)
-		return
+		return c.Status(500).SendString(err.Error())
 	}
 	var meeting Meeting
 	json.Unmarshal([]byte(c.Body()), &meeting)
@@ -94,30 +89,27 @@ func UpdateMeeting(c *fiber.Ctx) {
 	res, err := collection.UpdateOne(context.Background(), bson.M{"_id": objID}, update)
 
 	if err != nil {
-		c.Status(500).Send(err)
-		return
+		return c.Status(500).SendString(err.Error())
 	}
 
 	response, _ := json.Marshal(res)
-	c.Send(response)
+	return c.Send(response)
 }
 
-func DeleteMeeting(c *fiber.Ctx) {
+func DeleteMeeting(c *fiber.Ctx) error{
 	collection, err := db.GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
-		c.Status(500).Send(err)
-		return
+		return c.Status(500).SendString(err.Error())
 	}
 
 	objID, _ := primitive.ObjectIDFromHex(c.Params("id"))
 	res, err := collection.DeleteOne(context.Background(), bson.M{"_id": objID})
 
 	if err != nil {
-		c.Status(500).Send(err)
-		return
+		return c.Status(500).SendString(err.Error())
 	}
 
 	jsonResponse, _ := json.Marshal(res)
-	c.Send(jsonResponse)
+	return c.Send(jsonResponse)
 }
