@@ -1,4 +1,4 @@
-name: Go
+name: Go Build & Deploy
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  build:
+  build and deploy:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -39,7 +39,7 @@ jobs:
         # Target directory
         TARGET:  ${{secrets.TARGET_DIRECTORY}}
         # Arguments to pass to rsync
-        ARGS: "-rltgoDzvO --delete -- '.env'"
+        ARGS: "-rltgoDzvO --delete '.env'"
         
     - name: Run API
       run: "echo ${{secrets.SSH_PRIVATE_KEY}} > pKey.key && ssh -i pKey.key ${{secrets.SSH_REMOTE_USER}}@${{secrets.SSH_REMOTE_HOST}}:22 ${{secrets.TARGET_DIRECTORY}} './zoom_schedule_backend_go &' && echo 'api is running'"
