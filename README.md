@@ -2,8 +2,20 @@
 
 This is the backend for the [Zoom Schedule App](https://github.com/IceToast/zoom_schedule)
 
-## Build
+
+## Resolve missing dependencies
+```
+go get
+```
+
+## Build the backend
 
 ```
 go build
+```
+
+## Run the backend
+
+```
+go run
 ```
