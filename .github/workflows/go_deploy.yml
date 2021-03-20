@@ -37,11 +37,11 @@ jobs:
         # Source directory
         SOURCE: dist/
         # Target directory
-        TARGET:  ${{secrets.TARGET_DIRECTORY}}
+        TARGET:  ${{secrets.SSH_TARGET_DIRECTORY}}
         # Arguments to pass to rsync
         ARGS: "-rltgoDzvO --exclude='.env' --delete"
         
     - name: Run API
-      run: "echo ${{secrets.SSH_PRIVATE_KEY}} > pKey.key && ssh -i pKey.key ${{secrets.SSH_REMOTE_USER}}@${{secrets.SSH_REMOTE_HOST}}:22 ${{secrets.TARGET_DIRECTORY}} './zoom_schedule_backend_go &' && echo 'api is running'"
+      run: "echo ${{secrets.SSH_PRIVATE_KEY}} > pKey.key && ssh -i pKey.key ${{secrets.SSH_REMOTE_USER}}@${{secrets.SSH_REMOTE_HOST}}:22 ${{secrets.SSH_TARGET_DIRECTORY}} './zoom_schedule_backend_go &' && echo 'api is running'"
       
 
