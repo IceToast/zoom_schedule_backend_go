@@ -12,10 +12,10 @@ import (
 )
 
 type Meeting struct {
-	_id primitive.ObjectID `json:"id,omitempty" bson:"id,omitempty"`
-	Name	string `json:"name,omitempty" bson":name.omitempty"`
-	Link	string `json:"link,omitempty" bson":link.omitempty`
-	Password	string `json:"password,omitempty bson:"password,omitempty"`
+	_id      primitive.ObjectID `json:"id,omitempty" bson:"id,omitempty"`
+	Name     string             `json:"name,omitempty" bson":name.omitempty"`
+	Link     string             `json:"link,omitempty" bson":link.omitempty`
+	Password string             `json:"password,omitempty" bson:"password,omitempty"`
 }
 
 const dbName = "zoom_schedule"
@@ -43,14 +43,14 @@ func GetMeeting(c *fiber.Ctx) error {
 		return c.Status(500).SendString(err.Error())
 	}
 
-	cur.All(context.Background(), &results)
+	_ = cur.All(context.Background(), &results)
 
 	if results == nil {
 		return c.SendStatus(404)
 	}
 
-	json, _ := json.Marshal(results)
-	return c.Send(json)
+	jsonResults, _ := json.Marshal(results)
+	return c.Send(jsonResults)
 }
 
 func CreateMeeting(c *fiber.Ctx) error {
@@ -62,7 +62,7 @@ func CreateMeeting(c *fiber.Ctx) error {
 	}
 
 	var meeting Meeting
-	json.Unmarshal([]byte(c.Body()), &meeting)
+	_ = json.Unmarshal(c.Body(), &meeting)
 
 	res, err := collection.InsertOne(context.Background(), meeting)
 	if err != nil {
@@ -79,7 +79,7 @@ func UpdateMeeting(c *fiber.Ctx) error {
 		return c.Status(500).SendString(err.Error())
 	}
 	var meeting Meeting
-	json.Unmarshal([]byte(c.Body()), &meeting)
+	_ = json.Unmarshal(c.Body(), &meeting)
 
 	update := bson.M{
 		"$set": meeting,
@@ -96,7 +96,7 @@ func UpdateMeeting(c *fiber.Ctx) error {
 	return c.Send(response)
 }
 
-func DeleteMeeting(c *fiber.Ctx) error{
+func DeleteMeeting(c *fiber.Ctx) error {
 	collection, err := db.GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {

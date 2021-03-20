@@ -3,6 +3,8 @@ package main
 import (
 	// System-Imports
 	"log"
+	"os"
+
 	// eigene Imports
 	"zoom_schedule_backend_go/routes"
 
@@ -14,10 +16,10 @@ import (
 	"github.com/shareed2k/goth_fiber"
 	"github.com/subosito/gotenv"
 )
+
 const (
-	Port         = ":8011"
-	GoogleKey    = "googlekey" // via Google API
-	GoogleSecret = "googlesec" // via Google API
+	Host = "localhost"
+	Port = ":8011"
 )
 
 func init() {
@@ -26,17 +28,17 @@ func init() {
 
 func main() {
 	app := fiber.New()
-	
+
 	goth.UseProviders(
-		google.New(GoogleKey, GoogleSecret,
-			"http://localhost" + Port + "/api/auth/google/callback"),
+		google.New(os.Getenv("OAUTH_CLIENT_ID"), os.Getenv("OAUTH_SECRET"),
+			"http://"+Host+Port+"/api/auth/google/callback"),
 		// ... mehr Provider
 	)
-	
+
 	app.Use(cors.New())
-	
-	// OAuth2-Endpunkte
 	api := app.Group("/api") // /api
+
+	// OAuth2-Endpunkte
 	api.Get("/auth/:provider", func(ctx *fiber.Ctx) error {
 		if gothUser, err := goth_fiber.CompleteUserAuth(ctx); err == nil {
 			ctx.JSON(gothUser)
@@ -78,4 +80,4 @@ func main() {
 	if err := app.Listen(Port); err != nil {
 		log.Fatal(err)
 	}
-  }
+}
