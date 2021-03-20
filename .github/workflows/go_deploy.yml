@@ -48,5 +48,5 @@ jobs:
        key:  ${{secrets.SSH_PRIVATE_KEY}}
        username: ${{secrets.SSH_REMOTE_USER}}
        script: |
-        pkill -f "zoom_schedule_api"
-        nohup ${{secrets.SSH_TARGET_DIRECTORY}}zoom_schedule_api
+        screen -X -S zoom_schedule_backend quit
+        screen -dmS zoom_schedule_backend ${{secrets.SSH_TARGET_DIRECTORY}}zoom_schedule_api
