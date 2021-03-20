@@ -37,7 +37,7 @@ jobs:
         # Source directory
         SOURCE: dist/
         # Target directory
-        TARGET:  ${{secrets.TARGET_DIRECTORY}
+        TARGET:  ${{secrets.TARGET_DIRECTORY}}
         # Arguments to pass to rsync
         ARGS: "-rltgoDzvO --delete"
         EXCLUDE: ".env"
