@@ -49,4 +49,4 @@ jobs:
        username: ${{secrets.SSH_REMOTE_USER}}
        script: |
         screen -X -S zoom_schedule_backend quit
-        screen -dmS zoom_schedule_backend ${{secrets.SSH_TARGET_DIRECTORY}}/zoom_schedule_api
+        screen -d -m -S zoom_schedule_backend ${{secrets.SSH_TARGET_DIRECTORY}}/zoom_schedule_api
