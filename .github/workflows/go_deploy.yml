@@ -41,7 +41,7 @@ jobs:
         # Arguments to pass to rsync
         ARGS: "-rltgoDzvO --exclude='.env' --delete"
           
-    - name: SSH Remote Command
+    - name: SSH Run Api
       uses: appleboy/ssh-action@v0.1.3
       with:
        host: ${{secrets.SSH_REMOTE_HOST}}
@@ -49,4 +49,4 @@ jobs:
        username: ${{secrets.SSH_REMOTE_USER}}
        script: |
         screen -X -S zoom_schedule_backend quit
-        screen -dmS zoom_schedule_backend ${{secrets.SSH_TARGET_DIRECTORY}}zoom_schedule_api
+        screen -dmS zoom_schedule_backend ${{secrets.SSH_TARGET_DIRECTORY}}/zoom_schedule_api
