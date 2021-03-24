@@ -24,6 +24,7 @@ const (
 
 func init() {
 	gotenv.Load()
+	log.Println(os.Getenv("CONNECTION_STRING"))
 }
 
 func main() {
