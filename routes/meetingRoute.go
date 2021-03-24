@@ -37,12 +37,10 @@ func GetMeeting(ctx *fiber.Ctx) error {
 
 	var results []bson.M
 	cur, err := collection.Find(context.Background(), filter)
-
-
 	if err != nil {
-		defer cur.Close(context.Background())
 		return ctx.Status(500).SendString(err.Error())
 	}
+	defer cur.Close(context.Background())
 
 	_ = cur.All(context.Background(), &results)
 
