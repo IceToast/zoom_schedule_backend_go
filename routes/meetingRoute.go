@@ -21,16 +21,16 @@ type Meeting struct {
 const dbName = "zoom_schedule"
 const collectionName = "meeting"
 
-func GetMeeting(c *fiber.Ctx) error {
+func GetMeeting(ctx *fiber.Ctx) error {
 	collection, err := db.GetMongoDbCollection(dbName, collectionName)
 	if err != nil {
-		return c.Status(500).SendString(err.Error())
+		return ctx.Status(500).SendString(err.Error())
 	}
 
 	var filter bson.M = bson.M{}
 
-	if c.Params("id") != "" {
-		id := c.Params("id")
+	if ctx.Params("id") != "" {
+		id := ctx.Params("id")
 		objID, _ := primitive.ObjectIDFromHex(id)
 		filter = bson.M{"_id": objID}
 	}
@@ -40,76 +40,76 @@ func GetMeeting(c *fiber.Ctx) error {
 	defer cur.Close(context.Background())
 
 	if err != nil {
-		return c.Status(500).SendString(err.Error())
+		return ctx.Status(500).SendString(err.Error())
 	}
 
 	_ = cur.All(context.Background(), &results)
 
 	if results == nil {
-		return c.SendStatus(404)
+		return ctx.SendStatus(404)
 	}
 
 	jsonResults, _ := json.Marshal(results)
-	return c.Send(jsonResults)
+	return ctx.Send(jsonResults)
 }
 
-func CreateMeeting(c *fiber.Ctx) error {
+func CreateMeeting(ctx *fiber.Ctx) error {
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionName)
 	if err != nil {
 
-		return c.Status(500).SendString(err.Error())
+		return ctx.Status(500).SendString(err.Error())
 	}
 
 	var meeting Meeting
-	_ = json.Unmarshal(c.Body(), &meeting)
+	_ = json.Unmarshal(ctx.Body(), &meeting)
 
 	res, err := collection.InsertOne(context.Background(), meeting)
 	if err != nil {
-		return c.Status(500).SendString(err.Error())
+		return ctx.Status(500).SendString(err.Error())
 	}
 
 	response, _ := json.Marshal(res)
-	return c.Send(response)
+	return ctx.Send(response)
 }
 
-func UpdateMeeting(c *fiber.Ctx) error {
+func UpdateMeeting(ctx *fiber.Ctx) error {
 	collection, err := db.GetMongoDbCollection(dbName, collectionName)
 	if err != nil {
-		return c.Status(500).SendString(err.Error())
+		return ctx.Status(500).SendString(err.Error())
 	}
 	var meeting Meeting
-	_ = json.Unmarshal(c.Body(), &meeting)
+	_ = json.Unmarshal(ctx.Body(), &meeting)
 
 	update := bson.M{
 		"$set": meeting,
 	}
 
-	objID, _ := primitive.ObjectIDFromHex(c.Params("id"))
+	objID, _ := primitive.ObjectIDFromHex(ctx.Params("id"))
 	res, err := collection.UpdateOne(context.Background(), bson.M{"_id": objID}, update)
 
 	if err != nil {
-		return c.Status(500).SendString(err.Error())
+		return ctx.Status(500).SendString(err.Error())
 	}
 
 	response, _ := json.Marshal(res)
-	return c.Send(response)
+	return ctx.Send(response)
 }
 
-func DeleteMeeting(c *fiber.Ctx) error {
+func DeleteMeeting(ctx *fiber.Ctx) error {
 	collection, err := db.GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
-		return c.Status(500).SendString(err.Error())
+		return ctx.Status(500).SendString(err.Error())
 	}
 
-	objID, _ := primitive.ObjectIDFromHex(c.Params("id"))
+	objID, _ := primitive.ObjectIDFromHex(ctx.Params("id"))
 	res, err := collection.DeleteOne(context.Background(), bson.M{"_id": objID})
 
 	if err != nil {
-		return c.Status(500).SendString(err.Error())
+		return ctx.Status(500).SendString(err.Error())
 	}
 
 	jsonResponse, _ := json.Marshal(res)
-	return c.Send(jsonResponse)
+	return ctx.Send(jsonResponse)
 }
