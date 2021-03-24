@@ -40,9 +40,11 @@ func main() {
 	app.Use(cors.New())
 	api := app.Group("/api")
 
+
 	// OAuth2-Endpunkte
-	api.Get("/auth/:provider", goth_fiber.BeginAuthHandler)
-	api.Get("/auth/:provider/callback", func(ctx *fiber.Ctx) error {
+	auth := api.Group("/auth")
+	auth.Get("/:provider", goth_fiber.BeginAuthHandler)
+	auth.Get("/:provider/callback", func(ctx *fiber.Ctx) error {
 		user, err := goth_fiber.CompleteUserAuth(ctx)
 		if err != nil {
 			return ctx.SendString(err.Error())
@@ -51,7 +53,7 @@ func main() {
 		ctx.JSON(user)
 		return nil
 	})
-	api.Get("/auth/logout/:provider", func(ctx *fiber.Ctx) error {
+	auth.Get("/logout/:provider", func(ctx *fiber.Ctx) error {
 		if err := goth_fiber.Logout(ctx); err != nil {
 			return ctx.SendString(err.Error())
 		}
@@ -61,10 +63,11 @@ func main() {
 	})
 
 	// Meeting-Endpunkte
-	api.Get("/meeting/:id?", routes.GetMeeting)
-	api.Post("/meeting", routes.CreateMeeting)
-	api.Put("/meeting/:id", routes.UpdateMeeting)
-	api.Delete("/meeting/:id", routes.DeleteMeeting)
+	meeting := api.Group("/meeting")
+	meeting.Get("/:id?", routes.GetMeeting)
+	meeting.Post("", routes.CreateMeeting)
+	meeting.Put("/:id", routes.UpdateMeeting)
+	meeting.Delete("/:id", routes.DeleteMeeting)
 
 	// Test-Endpunkt
 	api.Get("/test", func(ctx *fiber.Ctx) error {
