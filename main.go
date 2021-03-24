@@ -12,46 +12,40 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/markbates/goth"
+	"github.com/markbates/goth/providers/discord"
 	"github.com/markbates/goth/providers/google"
 	"github.com/shareed2k/goth_fiber"
 	"github.com/subosito/gotenv"
 )
 
 const (
-	Host = "localhost"
+	Host = "zoomapi.icetoast.cloud"
 	Port = ":8011"
 )
 
 func init() {
 	gotenv.Load()
-	log.Println(os.Getenv("CONNECTION_STRING"))
 }
 
 func main() {
 	app := fiber.New()
 
 	goth.UseProviders(
-		google.New(os.Getenv("OAUTH_CLIENT_ID"), os.Getenv("OAUTH_SECRET"),
-			"http://"+Host+Port+"/api/auth/google/callback"),
-		// ... mehr Provider
+		google.New(os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_SECRET"), "https://"+Host+"/api/auth/google/callback"),
+		discord.New(os.Getenv("DISCORD_CLIENT_ID"), os.Getenv("DISCORD_SECRET"), "https://"+Host+"/api/auth/discord/callback", discord.ScopeIdentify, discord.ScopeEmail),
+		//The Github method at the time is depricated, wait for next Goth-Release
+		//github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_SECRET"), "https://"+Host+"/api/auth/github/callback"),
 	)
 
 	app.Use(cors.New())
-	api := app.Group("/api") // /api
+	api := app.Group("/api")
 
 	// OAuth2-Endpunkte
-	api.Get("/auth/:provider", func(ctx *fiber.Ctx) error {
-		if gothUser, err := goth_fiber.CompleteUserAuth(ctx); err == nil {
-			ctx.JSON(gothUser)
-		} else {
-			goth_fiber.BeginAuthHandler(ctx)
-		}
-		return nil
-	})
+	api.Get("/auth/:provider", goth_fiber.BeginAuthHandler)
 	api.Get("/auth/:provider/callback", func(ctx *fiber.Ctx) error {
 		user, err := goth_fiber.CompleteUserAuth(ctx)
 		if err != nil {
-			log.Fatal(err)
+			return ctx.SendString(err.Error())
 		}
 
 		ctx.JSON(user)
@@ -59,7 +53,7 @@ func main() {
 	})
 	api.Get("/auth/logout/:provider", func(ctx *fiber.Ctx) error {
 		if err := goth_fiber.Logout(ctx); err != nil {
-			log.Fatal(err)
+			return ctx.SendString(err.Error())
 		}
 
 		ctx.Redirect("/")
