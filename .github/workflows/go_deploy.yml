@@ -47,4 +47,4 @@ jobs:
           key: ${{secrets.SSH_PRIVATE_KEY}}
           username: ${{secrets.SSH_REMOTE_USER}}
           script: |
-            systemctl --user start zoomschedule
+            systemctl --user restart zoomschedule
