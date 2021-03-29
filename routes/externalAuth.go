@@ -29,18 +29,23 @@ const dbName = "zoom_schedule"
 const collectionExternalAuth = "externalauth"
 const collectionSessions = "sessions"
 
-var storage = mongodb.New(mongodb.Config{
-	ConnectionURI: os.Getenv("CONNECTION_STRING"),
-	Database:      dbName,
-	Collection:    collectionSessions,
-	Reset:         false,
-})
+func GetStore() *session.Store {
+	// Fiber Middleware Storage
+	storage := mongodb.New(mongodb.Config{
+		ConnectionURI: os.Getenv("CONNECTION_STRING"),
+		Database:      dbName,
+		Collection:    collectionSessions,
+		Reset:         false,
+	})
 
-// Storage: MongoDB, Expiration: 30days
-var store = session.New(session.Config{
-	Storage:    storage,
-	Expiration: 720 * time.Hour,
-})
+	// Storage: MongoDB, Expiration: 30days
+	store := session.New(session.Config{
+		Storage:    storage,
+		Expiration: 720 * time.Hour,
+	})
+
+	return store
+}
 
 func ProviderCallback(ctx *fiber.Ctx) error {
 	user, err := goth_fiber.CompleteUserAuth(ctx)
@@ -48,12 +53,13 @@ func ProviderCallback(ctx *fiber.Ctx) error {
 		return ctx.SendString(err.Error())
 	}
 
-	session, err := GetSession(ctx, user)
+	session, _ := GetSession(ctx, user)
 
 	return ctx.SendString(fmt.Sprintf("Welcome %v", session))
 }
 
 func GetSession(ctx *fiber.Ctx, user goth.User) (string, error) {
+	store := GetStore()
 	session, err := store.Get(ctx)
 	if err != nil {
 		return "", err
