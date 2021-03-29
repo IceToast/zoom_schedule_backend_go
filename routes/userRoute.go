@@ -1,14 +1,6 @@
 package routes
 
 import (
-	"context"
-	"encoding/json"
-
-	"zoom_schedule_backend_go/db"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/markbates/goth"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -34,39 +26,4 @@ type Day struct {
 
 const collectionUser = "user"
 
-func AuthUser(ctx *fiber.Ctx, user goth.User) error {
-
-	return ctx.SendString("Auth Error")
-
-}
-
-func GetMeeting(ctx *fiber.Ctx) error {
-	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
-	if err != nil {
-		return ctx.Status(500).SendString(err.Error())
-	}
-
-	var filter bson.M = bson.M{}
-
-	if ctx.Params("id") != "" {
-		id := ctx.Params("id")
-		objID, _ := primitive.ObjectIDFromHex(id)
-		filter = bson.M{"_id": objID}
-	}
-
-	var results []bson.M
-	cur, err := collection.Find(context.Background(), filter)
-	if err != nil {
-		return ctx.Status(500).SendString(err.Error())
-	}
-	defer cur.Close(context.Background())
-
-	_ = cur.All(context.Background(), &results)
-
-	if results == nil {
-		return ctx.SendStatus(404)
-	}
-
-	jsonResults, _ := json.Marshal(results)
-	return ctx.Send(jsonResults)
-}
+// Initialize custom config using connection string
