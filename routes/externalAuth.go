@@ -48,26 +48,28 @@ func ProviderCallback(ctx *fiber.Ctx) error {
 		return ctx.SendString(err.Error())
 	}
 
-	name, err := GetSession(ctx, user)
+	session, err := GetSession(ctx, user)
 
-	return ctx.SendString(fmt.Sprintf("Welcome %v", name))
+	return ctx.SendString(fmt.Sprintf("Welcome %v", session))
 }
 
-func GetSession(ctx *fiber.Ctx, user goth.User) (*string, error) {
+func GetSession(ctx *fiber.Ctx, user goth.User) (string, error) {
 	session, err := store.Get(ctx)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// Set key/value
 	session.Set("name", user.Email)
+	session.Set("userId", user.UserID)
 
-	name := session.Get("name").(*string)
+	name := session.Get("name").(string)
+	userId := session.Get("userId").(string)
 
 	// save session
 	if err := session.Save(); err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return name, nil
+	return name + userId, nil
 }
