@@ -2,15 +2,17 @@ package main
 
 import (
 	// System-Imports
+	"fmt"
 	"log"
 	"os"
 
 	// eigene Imports
-	"zoom_schedule_backend_go/routes"
 
 	// GitHub Imports
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/storage/mongodb"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/discord"
 	"github.com/markbates/goth/providers/google"
@@ -33,13 +35,24 @@ func main() {
 	goth.UseProviders(
 		google.New(os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_SECRET"), "https://"+Host+"/api/auth/google/callback"),
 		discord.New(os.Getenv("DISCORD_CLIENT_ID"), os.Getenv("DISCORD_SECRET"), "https://"+Host+"/api/auth/discord/callback", discord.ScopeIdentify, discord.ScopeEmail),
-		//The Github method at the time is depricated, wait for next Goth-Release
+		//The Github method at the time is deprecated, wait for next Goth-Release
 		//github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_SECRET"), "https://"+Host+"/api/auth/github/callback"),
 	)
 
 	app.Use(cors.New())
-	api := app.Group("/api")
 
+	storage := mongodb.New(mongodb.Config{
+		ConnectionURI: os.Getenv("CONNECTION_STRING"),
+		Database:      "zoom_schedule",
+		Collection:    "sessions",
+		Reset:         false,
+	})
+
+	store := session.New(session.Config{
+		Storage: storage,
+	})
+
+	api := app.Group("/api")
 
 	// OAuth2-Endpunkte
 	auth := api.Group("/auth")
@@ -50,8 +63,23 @@ func main() {
 			return ctx.SendString(err.Error())
 		}
 
-		ctx.JSON(user)
-		return nil
+		// get session from storage
+		session, err := store.Get(ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		// Set key/value
+		session.Set("name", user.Email)
+
+		name := session.Get("name")
+
+		// save session
+		if err := session.Save(); err != nil {
+			panic(err)
+		}
+
+		return ctx.SendString(fmt.Sprintf("Welcome %v", name))
 	})
 	auth.Get("/logout/:provider", func(ctx *fiber.Ctx) error {
 		if err := goth_fiber.Logout(ctx); err != nil {
@@ -61,13 +89,6 @@ func main() {
 		ctx.Redirect("/")
 		return nil
 	})
-
-	// Meeting-Endpunkte
-	meeting := api.Group("/meeting")
-	meeting.Get("/:id?", routes.GetMeeting)
-	meeting.Post("", routes.CreateMeeting)
-	meeting.Put("/:id", routes.UpdateMeeting)
-	meeting.Delete("/:id", routes.DeleteMeeting)
 
 	// Test-Endpunkt
 	api.Get("/test", func(ctx *fiber.Ctx) error {

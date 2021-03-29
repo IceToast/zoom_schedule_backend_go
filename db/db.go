@@ -21,7 +21,7 @@ func GetMongoDbConnection() (*mongo.Client, error) {
 
 	err = client.Ping(context.Background(), readpref.Primary())
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	return client, nil
