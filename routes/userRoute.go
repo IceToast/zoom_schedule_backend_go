@@ -36,7 +36,7 @@ const collectionUser = "user"
 
 func AuthUser(ctx *fiber.Ctx, user goth.User) error {
 
-	return nil
+	return ctx.SendString("Auth Error")
 
 }
 
