@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/gofiber/fiber/v2 v2.6.0
+	github.com/gofiber/storage/mongodb v0.0.0-20210329083728-ae99c04c93c0
 	github.com/markbates/goth v1.67.1
 	github.com/shareed2k/goth_fiber v0.2.1
 	github.com/subosito/gotenv v1.2.0
