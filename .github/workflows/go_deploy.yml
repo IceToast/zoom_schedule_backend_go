@@ -4,7 +4,6 @@ on:
   push:
     branches: 
      - master
-     - feature/reauth
   pull_request:
     branches: [master]
 
@@ -20,7 +19,7 @@ jobs:
           go-version: 1.16
 
       - name: Build
-        run: go build -o dist/zoom_schedule_api
+        run: go build -o dist/zoom_schedule_api -mod=vendor
 
       - name: SSH Deploy
         # You may pin to the exact commit or the version.
