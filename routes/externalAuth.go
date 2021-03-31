@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"zoom_schedule_backend_go/db"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/storage/mongodb"
@@ -13,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type ExternalAuth struct {
+type ExternalAuthUser struct {
 	_id            primitive.ObjectID `json:"id,omitempty" bson:"id,omitempty"`
 	ExternalUserId int                `json:"externaluserid.omitempty" bson:"externaluserid,omitempty"`
 	InternalUserId string             `json:"internaluserid.omitempty" bson:"internaluserid.omitempty"`
@@ -25,27 +26,8 @@ type ExternalAuth struct {
 	ExpiresAt      primitive.DateTime `json:"expiresat.omitempty" bson:"expiresat.omitempty"`
 }
 
-const dbName = "zoom_schedule"
 const collectionExternalAuth = "externalauth"
-const collectionSessions = "sessions"
 
-func GetStore() *session.Store {
-	// Fiber Middleware Storage
-	storage := mongodb.New(mongodb.Config{
-		ConnectionURI: os.Getenv("CONNECTION_STRING"),
-		Database:      dbName,
-		Collection:    collectionSessions,
-		Reset:         false,
-	})
-
-	// Storage: MongoDB, Expiration: 30days
-	store := session.New(session.Config{
-		Storage:    storage,
-		Expiration: 720 * time.Hour,
-	})
-
-	return store
-}
 
 func ProviderCallback(ctx *fiber.Ctx) error {
 	user, err := goth_fiber.CompleteUserAuth(ctx)
@@ -58,18 +40,16 @@ func ProviderCallback(ctx *fiber.Ctx) error {
 	return ctx.SendString(fmt.Sprintf("Welcome %v", session))
 }
 
-func GetSession(ctx *fiber.Ctx, user goth.User) (string, error) {
-	store := GetStore()
+func GetSession(ctx *fiber.Ctx, user ExternalAuthUser) (string, error) {
+	store := db.GetStore()
 	session, err := store.Get(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	// Set key/value
-	session.Set("name", user.Email)
-	session.Set("userId", user.UserID)
+	// Set Session Data as key/value-pair
+	session.Set("userId", user.InternalUserId)
 
-	name := session.Get("name").(string)
 	userId := session.Get("userId").(string)
 
 	// save session

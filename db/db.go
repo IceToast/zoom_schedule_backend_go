@@ -10,6 +10,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+const dbName = "zoom_schedule"
+const collectionSessions = "sessions"
+
 //GetMongoDbConnection get connection of mongodb
 func GetMongoDbConnection() (*mongo.Client, error) {
 
@@ -37,4 +40,24 @@ func GetMongoDbCollection(DbName string, CollectionName string) (*mongo.Collecti
 	collection := client.Database(DbName).Collection(CollectionName)
 
 	return collection, nil
+}
+
+
+
+func GetStore() *session.Store {
+	// Fiber Middleware Storage
+	storage := mongodb.New(mongodb.Config{
+		ConnectionURI: os.Getenv("CONNECTION_STRING"),
+		Database:      dbName,
+		Collection:    collectionSessions,
+		Reset:         false,
+	})
+
+	// Storage: MongoDB, Expiration: 30days
+	store := session.New(session.Config{
+		Storage:    storage,
+		Expiration: 720 * time.Hour,
+	})
+
+	return store
 }

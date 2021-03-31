@@ -11,6 +11,12 @@ type User struct {
 	Days     []Day              `json:"days,omitempty" bson:"days,omitempty"`
 }
 
+type Day struct {
+	_id      primitive.ObjectID `json:"id,omitempty" bson:"id,omitempty"`
+	Name     string             `json:"name,omitempty" bson:"name.omitempty"`
+	Meetings []Meeting          `json:"meetings,omitempty" bson:"meetings.omitempty"`
+}
+
 type Meeting struct {
 	_id      primitive.ObjectID `json:"id,omitempty" bson:"id,omitempty"`
 	Name     string             `json:"name,omitempty" bson":name.omitempty"`
@@ -18,11 +24,6 @@ type Meeting struct {
 	Password string             `json:"password,omitempty" bson:"password,omitempty"`
 }
 
-type Day struct {
-	_id      primitive.ObjectID `json:"id,omitempty" bson:"id,omitempty"`
-	Name     string             `json:"name,omitempty" bson:"name.omitempty"`
-	Meetings []Meeting          `json:"meetings,omitempty" bson:"meetings.omitempty"`
-}
 
 const collectionUser = "user"
 
