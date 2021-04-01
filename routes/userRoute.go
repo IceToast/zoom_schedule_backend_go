@@ -24,7 +24,4 @@ type Meeting struct {
 	Password string             `json:"password,omitempty" bson:"password,omitempty"`
 }
 
-
 const collectionUser = "user"
-
-// Initialize custom config using connection string

@@ -4,7 +4,10 @@ import (
 	"context"
 	"log"
 	"os"
+	"time"
 
+	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/storage/mongodb"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -41,8 +44,6 @@ func GetMongoDbCollection(DbName string, CollectionName string) (*mongo.Collecti
 
 	return collection, nil
 }
-
-
 
 func GetStore() *session.Store {
 	// Fiber Middleware Storage

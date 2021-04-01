@@ -2,13 +2,10 @@ package routes
 
 import (
 	"fmt"
-	"os"
-	"time"
 
 	"zoom_schedule_backend_go/db"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
-	"github.com/gofiber/storage/mongodb"
 	"github.com/markbates/goth"
 	"github.com/shareed2k/goth_fiber"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -28,11 +25,18 @@ type ExternalAuthUser struct {
 
 const collectionExternalAuth = "externalauth"
 
-
 func ProviderCallback(ctx *fiber.Ctx) error {
 	user, err := goth_fiber.CompleteUserAuth(ctx)
 	if err != nil {
 		return ctx.SendString(err.Error())
+	}
+
+	internalUser, err := getInternalUser(ctx, user.UserID)
+	if err != nil {
+		return ctx.SendString(err.Error())
+	}
+	if internalUser == nil {
+		//create User
 	}
 
 	session, _ := GetSession(ctx, user)
@@ -40,7 +44,7 @@ func ProviderCallback(ctx *fiber.Ctx) error {
 	return ctx.SendString(fmt.Sprintf("Welcome %v", session))
 }
 
-func GetSession(ctx *fiber.Ctx, user ExternalAuthUser) (string, error) {
+func GetSession(ctx *fiber.Ctx, user goth.User) (string, error) {
 	store := db.GetStore()
 	session, err := store.Get(ctx)
 	if err != nil {
