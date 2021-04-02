@@ -35,11 +35,11 @@ func ProviderCallback(ctx *fiber.Ctx) error {
 		return ctx.SendString(err.Error())
 	}
 
-	internalUser, err := GetExternalUser(ctx, user.UserID)
+	externalUser, err := GetExternalUser(ctx, user.UserID)
 	if err != nil {
 		return ctx.SendString(err.Error())
 	}
-	if internalUser == nil {
+	if externalUser == nil {
 		//create User
 	}
 
@@ -86,27 +86,26 @@ func GetExternalUser(ctx *fiber.Ctx, externaluserID string) (*ExternalAuthUser, 
 	return ExternalAuthUser, nil
 }
 
-func CreateExternalUser(ctx *fiber.Ctx, user *goth.User) error {
-	collection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
-	if err != nil {
-		return ctx.SendString(err.Error())
-	}
+func CreateUser(ctx *fiber.Ctx, user *goth.User) error {
+	//collection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
+	//if err != nil {
+	//	return ctx.SendString(err.Error())
+	//}
 
-	internalUserId, err := CreateInternalUser(user.UserName, user.Email)
-	if err != nil {
-		return ctx.SendString(err.Error())
-	}
+	CreateInternalUser(user.NickName, user.Email)
+	//if err != nil {
+	//	return ctx.SendString(err.Error())
+	//}
 
-	externalUser := &ExternalAuthUser{
-		InternalUserId: internalUserId,
-		ExternalUserId: user.UserID,
-		UserName:       user.NickName,
-		Email:          user.Email,
-		Platform:       user.Provider,
-		AccessToken:    user.AccessToken,
-		AvatarURL:      user.AvatarURL,
-		ExpiresAt:      user.ExpiresAt,
-	}
+	//externalUser := &ExternalAuthUser{
+	//	ExternalUserId: user.UserID,
+	//	UserName:       user.NickName,
+	//	Email:          user.Email,
+	//	Platform:       user.Provider,
+	//	AccessToken:    user.AccessToken,
+	//	AvatarURL:      user.AvatarURL,
+	//	ExpiresAt:      user.ExpiresAt,
+	//}
 
 	return nil
 }

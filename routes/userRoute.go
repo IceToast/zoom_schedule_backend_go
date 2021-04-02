@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"context"
 	"zoom_schedule_backend_go/db"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -38,5 +39,15 @@ func CreateInternalUser(username string, email string) (string, error) {
 		UserName: username,
 		Email:    email,
 	}
+
+	res, err := collection.InsertOne(context.Background(), internalUser)
+	if err != nil {
+		return "", err
+	}
+
+	internalUserId, _ := res.InsertedID.(primitive.ObjectID)
+	internalUserIdString := internalUserId.Hex()
+
+	return internalUserIdString, nil
 
 }
