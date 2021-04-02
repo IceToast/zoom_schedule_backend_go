@@ -3,6 +3,7 @@ package routes
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"zoom_schedule_backend_go/db"
 
@@ -15,14 +16,14 @@ import (
 
 type ExternalAuthUser struct {
 	_id            primitive.ObjectID `json:"id,omitempty" bson:"id,omitempty"`
-	ExternalUserId int                `json:"externaluserid.omitempty" bson:"externaluserid,omitempty"`
+	ExternalUserId string             `json:"externaluserid.omitempty" bson:"externaluserid,omitempty"`
 	InternalUserId string             `json:"internaluserid.omitempty" bson:"internaluserid.omitempty"`
 	UserName       string             `json:"name,omitempty" bson":name.omitempty"`
 	Email          string             `json:"link,omitempty" bson":link.omitempty`
-	Plattform      string             `json:"plattform.omitempty" bson:"plattform.omitempty`
+	Platform       string             `json:"platform.omitempty" bson:"platform.omitempty`
 	AccessToken    string             `json:"accesstoken.omitempty" bson:"accesstoken.omitempty"`
-	AvatarLink     string             `json:"avatarlink.omitempty" bson:"avatarlink.omitempty"`
-	ExpiresAt      primitive.DateTime `json:"expiresat.omitempty" bson:"expiresat.omitempty"`
+	AvatarURL      string             `json:"avatarurl.omitempty" bson:"avatarurl.omitempty"`
+	ExpiresAt      time.Time          `json:"expiresat.omitempty" bson:"expiresat.omitempty"`
 }
 
 const collectionExternalAuth = "externalauth"
@@ -67,7 +68,7 @@ func GetSession(ctx *fiber.Ctx, user goth.User) (string, error) {
 	return userId, nil
 }
 
-func GetExternalUser(ctx *fiber.Ctx, userID string) (*ExternalAuthUser, error) {
+func GetExternalUser(ctx *fiber.Ctx, externaluserID string) (*ExternalAuthUser, error) {
 	collection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
 	if err != nil {
 		return nil, ctx.SendString(err.Error())
@@ -76,8 +77,36 @@ func GetExternalUser(ctx *fiber.Ctx, userID string) (*ExternalAuthUser, error) {
 	ExternalAuthUser := &ExternalAuthUser{}
 
 	err = collection.FindOne(context.TODO(), bson.D{}).Decode(&ExternalAuthUser)
+	if err != nil {
+		return nil, ctx.SendString(err.Error())
+	}
 
 	fmt.Println(ExternalAuthUser._id.MarshalJSON())
 
 	return ExternalAuthUser, nil
+}
+
+func CreateExternalUser(ctx *fiber.Ctx, user *goth.User) error {
+	collection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
+	if err != nil {
+		return ctx.SendString(err.Error())
+	}
+
+	internalUserId, err := CreateInternalUser(user.UserName, user.Email)
+	if err != nil {
+		return ctx.SendString(err.Error())
+	}
+
+	externalUser := &ExternalAuthUser{
+		InternalUserId: internalUserId,
+		ExternalUserId: user.UserID,
+		UserName:       user.NickName,
+		Email:          user.Email,
+		Platform:       user.Provider,
+		AccessToken:    user.AccessToken,
+		AvatarURL:      user.AvatarURL,
+		ExpiresAt:      user.ExpiresAt,
+	}
+
+	return nil
 }

@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"zoom_schedule_backend_go/db"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -25,3 +27,16 @@ type Meeting struct {
 }
 
 const collectionUser = "user"
+
+func CreateInternalUser(username string, email string) (string, error) {
+	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
+	if err != nil {
+		return "", err
+	}
+
+	internalUser := &User{
+		UserName: username,
+		Email:    email,
+	}
+
+}
