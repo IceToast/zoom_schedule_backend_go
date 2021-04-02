@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"context"
 	"fmt"
 
 	"zoom_schedule_backend_go/db"
@@ -8,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/markbates/goth"
 	"github.com/shareed2k/goth_fiber"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -24,6 +26,7 @@ type ExternalAuthUser struct {
 }
 
 const collectionExternalAuth = "externalauth"
+const dbName = "zoom_schedule"
 
 func ProviderCallback(ctx *fiber.Ctx) error {
 	user, err := goth_fiber.CompleteUserAuth(ctx)
@@ -31,7 +34,7 @@ func ProviderCallback(ctx *fiber.Ctx) error {
 		return ctx.SendString(err.Error())
 	}
 
-	internalUser, err := getInternalUser(ctx, user.UserID)
+	internalUser, err := GetExternalUser(ctx, user.UserID)
 	if err != nil {
 		return ctx.SendString(err.Error())
 	}
@@ -52,7 +55,7 @@ func GetSession(ctx *fiber.Ctx, user goth.User) (string, error) {
 	}
 
 	// Set Session Data as key/value-pair
-	session.Set("userId", user.InternalUserId)
+	session.Set("userId", user.UserID)
 
 	userId := session.Get("userId").(string)
 
@@ -61,5 +64,20 @@ func GetSession(ctx *fiber.Ctx, user goth.User) (string, error) {
 		return "", err
 	}
 
-	return name + userId, nil
+	return userId, nil
+}
+
+func GetExternalUser(ctx *fiber.Ctx, userID string) (*ExternalAuthUser, error) {
+	collection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
+	if err != nil {
+		return nil, ctx.SendString(err.Error())
+	}
+
+	ExternalAuthUser := &ExternalAuthUser{}
+
+	err = collection.FindOne(context.TODO(), bson.D{}).Decode(&ExternalAuthUser)
+
+	fmt.Println(ExternalAuthUser._id.MarshalJSON())
+
+	return ExternalAuthUser, nil
 }
