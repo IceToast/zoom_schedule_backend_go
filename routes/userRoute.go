@@ -49,5 +49,4 @@ func CreateInternalUser(username string, email string) (string, error) {
 	internalUserIdString := internalUserId.Hex()
 
 	return internalUserIdString, nil
-
 }
