@@ -15,6 +15,7 @@ require (
 	github.com/subosito/gotenv v1.2.0
 	github.com/swaggo/gin-swagger v1.2.0 // indirect
 	github.com/valyala/fasthttp v1.23.0 // indirect
+	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	go.mongodb.org/mongo-driver v1.5.0
 	golang.org/x/net v0.0.0-20210331212208-0fccb6fa2b5c // indirect
 	golang.org/x/sys v0.0.0-20210403161142-5e06dd20ab57 // indirect
