@@ -50,6 +50,13 @@ func main() {
 		return nil
 	})
 
+	// Meeting-Endpunkte
+	meetings := api.Group("/meeting")
+	meetings.Get("/", routes.GetMeeting)
+	meetings.Post("/", routes.CreateMeeting)
+	meetings.Put("/", routes.UpdateMeeting)
+	meetings.Delete("/", routes.DeleteMeeting)
+
 	if err := app.Listen(Port); err != nil {
 		log.Fatal(err)
 	}
