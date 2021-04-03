@@ -1,0 +1,12 @@
+basePath: /api
+host: zoomapi.icetoast.cloud:8011
+info:
+  contact: {}
+  description: The backend based on Fiber
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Zoom Schedule Backend
+  version: "1.0"
+paths: {}
+swagger: "2.0"

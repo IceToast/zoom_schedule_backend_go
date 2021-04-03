@@ -1,0 +1,16 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "The backend based on Fiber",
+        "title": "Zoom Schedule Backend",
+        "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "zoomapi.icetoast.cloud:8011",
+    "basePath": "/api",
+    "paths": {}
+}

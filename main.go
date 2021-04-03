@@ -5,6 +5,7 @@ import (
 	"os"
 	"zoom_schedule_backend_go/routes"
 
+	"github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/markbates/goth"
@@ -23,6 +24,13 @@ func init() {
 	gotenv.Load()
 }
 
+// @title Zoom Schedule Backend
+// @version 1.0
+// @description The backend based on Fiber
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host zoomapi.icetoast.cloud:8011
+// @BasePath /api
 func main() {
 	app := fiber.New()
 
@@ -56,6 +64,9 @@ func main() {
 	meetings.Post("/", routes.CreateMeeting)
 	meetings.Put("/", routes.UpdateMeeting)
 	meetings.Delete("/", routes.DeleteMeeting)
+
+	// Swagger
+	app.Get("/swagger/*", swagger.Handler)
 
 	if err := app.Listen(Port); err != nil {
 		log.Fatal(err)
