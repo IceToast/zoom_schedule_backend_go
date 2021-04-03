@@ -75,16 +75,13 @@ func GetExternalUser(externaluserID string) (*ExternalAuthUser, error) {
 	}
 
 	var result *ExternalAuthUser
-	err = collection.FindOne(context.TODO(), bson.M{"externaluserid": "1485961"}).Decode(&result)
+	err = collection.FindOne(context.TODO(), bson.M{"externaluserid": externaluserID}).Decode(&result)
 	if err != nil {
 		// ErrNoDocuments means that the filter did not match any documents in the collection
 		if err == mongo.ErrNoDocuments {
 			return nil, err
 		}
 	}
-
-	//json.Unmarshal(result, &externalUser)
-
 	return result, nil
 }
 

@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	Host = "localhost:8011"
+	Host = "zoomapi.icetoast.cloud"
 	Port = ":8011"
 )
 
@@ -27,7 +27,7 @@ func main() {
 	app := fiber.New()
 
 	goth.UseProviders(
-		google.New(os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_SECRET"), "http://"+Host+"/api/auth/google/callback", "profile", "email"),
+		google.New(os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_SECRET"), "https://"+Host+"/api/auth/google/callback", "profile", "email"),
 		discord.New(os.Getenv("DISCORD_CLIENT_ID"), os.Getenv("DISCORD_SECRET"), "https://"+Host+"/api/auth/discord/callback", discord.ScopeIdentify, discord.ScopeEmail),
 		//The Github method at the time is deprecated, wait for next Goth-Release
 		//github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_SECRET"), "https://"+Host+"/api/auth/github/callback"),
