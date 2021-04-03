@@ -91,7 +91,7 @@ func CreateUser(ctx *fiber.Ctx, user goth.User) error {
 		return ctx.SendString(err.Error())
 	}
 
-	internalUserId, err := CreateInternalUser(user.NickName, user.Email)
+	internalUserId, err := CreateInternalUser(user.Name, user.Email)
 	if err != nil {
 		return ctx.SendString(err.Error())
 	}
@@ -99,7 +99,7 @@ func CreateUser(ctx *fiber.Ctx, user goth.User) error {
 	externalUser := &ExternalAuthUser{
 		ExternalUserId: user.UserID,
 		InternalUserId: internalUserId,
-		UserName:       user.NickName,
+		UserName:       user.Name,
 		Email:          user.Email,
 		Platform:       user.Provider,
 		AccessToken:    user.AccessToken,
