@@ -71,7 +71,7 @@ func main() {
 
 	// Swagger
 	app.Get("/swagger/*", swagger.New(swagger.Config{ // custom
-		URL: "http://localhost" + Port + "/docs/swagger.json",
+		URL:         "https://" + Host + Port + "/docs/swagger.json",
 		DeepLinking: false,
 	}))
 
