@@ -45,6 +45,7 @@ func main() {
 	)
 
 	app.Use(cors.New())
+	app.Static("/docs", "./docs") // Serve static docs/ folder
 
 	api := app.Group("/api")
 
@@ -69,7 +70,10 @@ func main() {
 	meetings.Delete("/", routes.DeleteMeeting)
 
 	// Swagger
-	app.Get("/swagger/*", swagger.Handler)
+	app.Get("/swagger/*", swagger.New(swagger.Config{ // custom
+		URL: "http://localhost" + Port + "/docs/swagger.json",
+		DeepLinking: false,
+	}))
 
 	if err := app.Listen(Port); err != nil {
 		log.Fatal(err)
