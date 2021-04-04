@@ -5,7 +5,7 @@ import (
 	"os"
 	"zoom_schedule_backend_go/routes"
 
-	"github.com/arsmn/fiber-swagger/v2"
+	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/markbates/goth"
@@ -60,7 +60,7 @@ func main() {
 
 	// Meeting-Endpunkte
 	meetings := api.Group("/meeting")
-	meetings.Get("/", routes.GetMeeting)
+	meetings.Get("/", routes.GetMeetings)
 	meetings.Post("/", routes.CreateMeeting)
 	meetings.Put("/", routes.UpdateMeeting)
 	meetings.Delete("/", routes.DeleteMeeting)
