@@ -39,16 +39,19 @@ func ProviderCallback(ctx *fiber.Ctx) error {
 
 	externalUser, err := GetExternalUser(user.UserID)
 	if err == mongo.ErrNoDocuments {
-		CreateUser(ctx, user)
+		externalUser, err = CreateUser(ctx, user)
+		if err != nil {
+			return ctx.SendString("User creation Failed")
+		}
 	}
 
-	//session, _ := GetSession(ctx, user)
+	session, _ := GetSession(ctx, externalUser)
 	marshalled, _ := json.Marshal(externalUser)
 
-	return ctx.SendString(fmt.Sprintf("Welcome %v", string(marshalled)))
+	return ctx.SendString(fmt.Sprintf("Welcome %v", string(marshalled)+"Session: "+session))
 }
 
-func GetSession(ctx *fiber.Ctx, user goth.User) (string, error) {
+func GetSession(ctx *fiber.Ctx, externalUser *ExternalAuthUser) (string, error) {
 	store := db.GetStore()
 	session, err := store.Get(ctx)
 	if err != nil {
@@ -56,9 +59,9 @@ func GetSession(ctx *fiber.Ctx, user goth.User) (string, error) {
 	}
 
 	// Set Session Data as key/value-pair
-	session.Set("userId", user.UserID)
+	session.Set("internalUserId", externalUser.InternalUserId)
 
-	userId := session.Get("userId").(string)
+	userId := session.Get("internalUserId").(string)
 
 	// save session
 	if err := session.Save(); err != nil {
@@ -82,18 +85,19 @@ func GetExternalUser(externaluserID string) (*ExternalAuthUser, error) {
 			return nil, err
 		}
 	}
+
 	return result, nil
 }
 
-func CreateUser(ctx *fiber.Ctx, user goth.User) error {
+func CreateUser(ctx *fiber.Ctx, user goth.User) (*ExternalAuthUser, error) {
 	collection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
 	if err != nil {
-		return ctx.SendString(err.Error())
+		return nil, err
 	}
 
 	internalUserId, err := CreateInternalUser(user.Name, user.Email)
 	if err != nil {
-		return ctx.SendString(err.Error())
+		return nil, err
 	}
 
 	externalUser := &ExternalAuthUser{
@@ -109,12 +113,12 @@ func CreateUser(ctx *fiber.Ctx, user goth.User) error {
 
 	res, err := collection.InsertOne(context.Background(), externalUser)
 	if err != nil {
-		return ctx.SendString("ExternalUserAuth Creation failed")
+		return nil, err
 	}
 
 	response, _ := json.Marshal(res)
 
 	ctx.SendString(string(response))
 
-	return nil
+	return externalUser, nil
 }
