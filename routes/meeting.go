@@ -27,15 +27,14 @@ func GetMeetings(ctx *fiber.Ctx) error {
 	// Check for valid Cookie first
 	store := db.GetStore()
 	session, err := store.Get(ctx)
-
 	if err != nil {
 		return ctx.Status(500).SendString(err.Error())
-
 	}
 
-	internalUserId := session.Get("internalUserId").(string)
-	if internalUserId == "" {
-		return ctx.Status(401).SendString("Cookie invalid")
+	internalUserId, ok := session.Get("internalUserId").(string)
+
+	if !ok {
+		return ctx.SendString("Invalid Cookie")
 	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
