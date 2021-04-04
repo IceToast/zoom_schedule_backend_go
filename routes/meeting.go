@@ -12,15 +12,14 @@ import (
 )
 
 type Day struct {
-	Id       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name     string             `json:"name,omitempty" bson:"name.omitempty"`
-	Meetings []Meeting          `json:"meetings,omitempty" bson:"meetings.omitempty"`
+	Name     string    `json:"name,omitempty" bson:"name,omitempty"`
+	Meetings []Meeting `json:"meetings,omitempty" bson:"meetings,omitempty"`
 }
 
 type Meeting struct {
 	Id       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name     string             `json:"name,omitempty" bson":name.omitempty"`
-	Link     string             `json:"link,omitempty" bson":link.omitempty`
+	Name     string             `json:"name,omitempty" bson":name,omitempty"`
+	Link     string             `json:"link,omitempty" bson":link,omitempty`
 	Password string             `json:"password,omitempty" bson:"password,omitempty"`
 }
 
@@ -47,8 +46,8 @@ func GetMeetings(ctx *fiber.Ctx) error {
 
 	objID, _ := primitive.ObjectIDFromHex(internalUserId)
 
-	var results *User
-	err = collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&results)
+	var result *User
+	err = collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&result)
 	if err != nil {
 		// ErrNoDocuments means that the filter did not match any documents in the collection
 		if err == mongo.ErrNoDocuments {
@@ -56,7 +55,11 @@ func GetMeetings(ctx *fiber.Ctx) error {
 		}
 	}
 
-	json, _ := json.Marshal(results)
+	if result.Days == nil {
+		return ctx.SendString("This user has no meetings")
+	}
+
+	json, _ := json.Marshal(result.Days)
 	ctx.Send(json)
 	return nil
 }
