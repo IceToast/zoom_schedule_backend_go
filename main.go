@@ -26,11 +26,14 @@ func init() {
 
 // @title Zoom Schedule Backend
 // @version 1.0
-// @description The backend based on Fiber
+// @description Auf Fiber basierendes Backend
+// @termsOfService http://swagger.io/terms/
+// @contact.name API Support
+// @contact.email fiber@swagger.io
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-// @host zoomapi.icetoast.cloud:8011
-// @BasePath /api
+// @host localhost:8011
+// @BasePath /
 func main() {
 	app := fiber.New()
 

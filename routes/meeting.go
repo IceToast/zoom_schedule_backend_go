@@ -12,6 +12,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+type HTTPError struct {
+	status  string
+	message string
+}
+
 type Day struct {
 	Name     string    `json:"name,omitempty" bson:"name,omitempty"`
 	Meetings []Meeting `json:"meetings,omitempty" bson:"meetings,omitempty"`
@@ -24,6 +29,15 @@ type Meeting struct {
 	Password string             `json:"password,omitempty" bson:"password,omitempty"`
 }
 
+// GetMeetings godoc
+// @Summary Retrieves meetings from the local Mongo database for a certain user.
+// @Description Resolves a userId via a given session cookie. The backend throws an error if the cookie does not exist.
+// @Accept json
+// @Produce json
+// @Success 200 {object} Meeting
+// @Failure 404 {object} HTTPError
+// @Failure 500 {object} HTTPError
+// @Router /api/meeting [get]
 func GetMeetings(ctx *fiber.Ctx) error {
 	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
@@ -56,6 +70,15 @@ func GetMeetings(ctx *fiber.Ctx) error {
 	return nil
 }
 
+
+// CreateMeeting godoc
+// @Summary Creates a meeting in the local Mongo database.
+// @Description Requires a JSON encoded Meeting object in the body.
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 500 {object} HTTPError
+// @Router /api/meeting [post]
 func CreateMeeting(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	//internalUserId, err := helpers.VerifyCookie(ctx)
@@ -83,6 +106,14 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// UpdateMeeting godoc
+// @Summary Updates a meeting in the local Mongo database.
+// @Description Requires a userId
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 500 {object} HTTPError
+// @Router /api/meeting [put]
 func UpdateMeeting(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)
@@ -116,6 +147,15 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	return nil
 }
 
+
+// DeleteMeeting godoc
+// @Summary Deletes a meeting in the local Mongo database.
+// @Description Requires a userId
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 500 {object} HTTPError
+// @Router /api/meeting [delete]
 func DeleteMeeting(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)

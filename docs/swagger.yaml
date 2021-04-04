@@ -1,12 +1,93 @@
-basePath: /api
-host: zoomapi.icetoast.cloud:8011
+basePath: /
+definitions:
+  routes.HTTPError:
+    type: object
+  routes.Meeting:
+    properties:
+      _id:
+        type: string
+      link:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:8011
 info:
-  contact: {}
-  description: The backend based on Fiber
+  contact:
+    email: fiber@swagger.io
+    name: API Support
+  description: Auf Fiber basierendes Backend
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
   title: Zoom Schedule Backend
   version: "1.0"
-paths: {}
+paths:
+  /api/meeting:
+    delete:
+      consumes:
+      - application/json
+      description: Requires a userId
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.HTTPError'
+      summary: Deletes a meeting in the local Mongo database.
+    get:
+      consumes:
+      - application/json
+      description: Resolves a userId via a given session cookie. The backend throws
+        an error if the cookie does not exist.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.Meeting'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/routes.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.HTTPError'
+      summary: Retrieves meetings from the local Mongo database for a certain user.
+    post:
+      consumes:
+      - application/json
+      description: Requires a JSON encoded Meeting object in the body.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.HTTPError'
+      summary: Creates a meeting in the local Mongo database.
+    put:
+      consumes:
+      - application/json
+      description: Requires a userId
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.HTTPError'
+      summary: Updates a meeting in the local Mongo database.
 swagger: "2.0"
