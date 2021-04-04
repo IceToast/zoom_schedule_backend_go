@@ -33,8 +33,9 @@ func GetMeetings(ctx *fiber.Ctx) error {
 
 	internalUserId, ok := session.Get("internalUserId").(string)
 
-	if !ok {
-		return ctx.SendString("Invalid Cookie")
+	if !ok || internalUserId == "" {
+		session.Destroy()
+		return ctx.Status(403).SendString("Invalid Cookie or session expired")
 	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
