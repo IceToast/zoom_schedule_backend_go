@@ -3,11 +3,12 @@ package routes
 import (
 	"context"
 	"zoom_schedule_backend_go/db"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type User struct {
-	_id      primitive.ObjectID `json:"id,omitempty" bson:"id,omitempty"`
+	Id       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	UserName string             `json:"name,omitempty" bson":name.omitempty"`
 	Email    string             `json:"link,omitempty" bson":link.omitempty`
 	Days     []Day              `json:"days,omitempty" bson:"days,omitempty"`

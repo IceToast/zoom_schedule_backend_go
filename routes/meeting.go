@@ -8,60 +8,52 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Day struct {
-	_id      primitive.ObjectID `json:"id,omitempty" bson:"id,omitempty"`
+	Id       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	Name     string             `json:"name,omitempty" bson:"name.omitempty"`
 	Meetings []Meeting          `json:"meetings,omitempty" bson:"meetings.omitempty"`
 }
 
 type Meeting struct {
-	_id      primitive.ObjectID `json:"id,omitempty" bson:"id,omitempty"`
+	Id       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	Name     string             `json:"name,omitempty" bson":name.omitempty"`
 	Link     string             `json:"link,omitempty" bson":link.omitempty`
 	Password string             `json:"password,omitempty" bson:"password,omitempty"`
 }
 
-const collectionName = "meeting"
-
-func GetMeeting(ctx *fiber.Ctx) error {
-	collection, collectionError := db.GetMongoDbCollection(dbName, collectionName)
+func GetMeetings(ctx *fiber.Ctx) error {
+	// Check for valid Cookie first
 	store := db.GetStore()
-	session, storeError := store.Get(ctx)
-
-	if collectionError != nil {
-		ctx.Status(500).SendString(collectionError.Error())
-		return collectionError
-	}
-
-	if storeError != nil {
-		ctx.Status(500).SendString(storeError.Error())
-		return storeError
-	}
-
-	var filter = bson.M{}
-	userId := session.Get("userId").(string)
-
-	if userId != "" {
-		objID, _ := primitive.ObjectIDFromHex(userId)
-		filter = bson.M{"_id": objID}
-	}
-
-	var results []bson.M
-	cur, err := collection.Find(context.Background(), filter)
-	defer cur.Close(context.Background())
+	session, err := store.Get(ctx)
 
 	if err != nil {
-		ctx.Status(500).SendString(err.Error())
-		return err
+		return ctx.Status(500).SendString(err.Error())
+
 	}
 
-	cur.All(context.Background(), &results)
+	internalUserId := session.Get("internalUserId").(string)
+	if internalUserId == "" {
+		return ctx.Status(401).SendString("Cookie invalid")
+	}
 
-	if results == nil {
-		ctx.SendStatus(404)
-		return nil
+	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
+	if err != nil {
+		return ctx.Status(500).SendString(err.Error())
+
+	}
+
+	objID, _ := primitive.ObjectIDFromHex(internalUserId)
+
+	var results *User
+	err = collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&results)
+	if err != nil {
+		// ErrNoDocuments means that the filter did not match any documents in the collection
+		if err == mongo.ErrNoDocuments {
+			return err
+		}
 	}
 
 	json, _ := json.Marshal(results)
@@ -71,7 +63,7 @@ func GetMeeting(ctx *fiber.Ctx) error {
 
 func CreateMeeting(ctx *fiber.Ctx) error {
 
-	collection, err := db.GetMongoDbCollection(dbName, collectionName)
+	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
 		ctx.Status(500).SendString(err.Error())
 		return err
@@ -92,7 +84,7 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 }
 
 func UpdateMeeting(ctx *fiber.Ctx) error {
-	collection, err := db.GetMongoDbCollection(dbName, collectionName)
+	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	store := db.GetStore()
 	session, storeError := store.Get(ctx)
 
@@ -127,7 +119,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 }
 
 func DeleteMeeting(ctx *fiber.Ctx) error {
-	collection, err := db.GetMongoDbCollection(dbName, collectionName)
+	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	store := db.GetStore()
 	session, storeError := store.Get(ctx)
 
