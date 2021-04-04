@@ -22,7 +22,7 @@ jobs:
         run: go build -o dist/zoom_schedule_api
 
       - name: Copy Docs to dist/
-        run: cp docs/ dist/docs/
+        run: cp -r docs/ dist/docs/
 
       - name: SSH Deploy
         # You may pin to the exact commit or the version.
