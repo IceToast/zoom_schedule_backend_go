@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"zoom_schedule_backend_go/db"
+	"zoom_schedule_backend_go/helpers"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
@@ -24,18 +25,9 @@ type Meeting struct {
 }
 
 func GetMeetings(ctx *fiber.Ctx) error {
-	// Check for valid Cookie first
-	store := db.GetStore()
-	session, err := store.Get(ctx)
+	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
-		return ctx.Status(500).SendString(err.Error())
-	}
-
-	internalUserId, ok := session.Get("internalUserId").(string)
-
-	if !ok || internalUserId == "" {
-		session.Destroy()
-		return ctx.Status(403).SendString("Invalid Cookie or session expired")
+		return ctx.Status(403).SendString(err.Error())
 	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
@@ -65,6 +57,11 @@ func GetMeetings(ctx *fiber.Ctx) error {
 }
 
 func CreateMeeting(ctx *fiber.Ctx) error {
+	//Verify Cookie
+	//internalUserId, err := helpers.VerifyCookie(ctx)
+	//if err != nil {
+	//	return ctx.Status(403).SendString(err.Error())
+	//}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
@@ -87,17 +84,15 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 }
 
 func UpdateMeeting(ctx *fiber.Ctx) error {
-	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
-	store := db.GetStore()
-	session, storeError := store.Get(ctx)
-
+	//Verify Cookie
+	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
-		ctx.Status(500).SendString(err.Error())
-		return err
+		return ctx.Status(403).SendString(err.Error())
 	}
 
-	if storeError != nil {
-		ctx.Status(500).SendString(storeError.Error())
+	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
+	if err != nil {
+		ctx.Status(500).SendString(err.Error())
 		return err
 	}
 
@@ -108,7 +103,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 		"$set": meeting,
 	}
 
-	objID, _ := primitive.ObjectIDFromHex(session.Get("userId").(string))
+	objID, _ := primitive.ObjectIDFromHex(internalUserId)
 	res, err := collection.UpdateOne(context.Background(), bson.M{"_id": objID}, update)
 
 	if err != nil {
@@ -122,21 +117,15 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 }
 
 func DeleteMeeting(ctx *fiber.Ctx) error {
-	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
-	store := db.GetStore()
-	session, storeError := store.Get(ctx)
-
+	//Verify Cookie
+	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
-		ctx.Status(500).SendString(err.Error())
-		return err
+		return ctx.Status(403).SendString(err.Error())
 	}
 
-	if storeError != nil {
-		ctx.Status(500).SendString(storeError.Error())
-		return err
-	}
+	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 
-	objID, _ := primitive.ObjectIDFromHex(session.Get("userId").(string))
+	objID, _ := primitive.ObjectIDFromHex(internalUserId)
 	res, err := collection.DeleteOne(context.Background(), bson.M{"_id": objID})
 
 	if err != nil {
