@@ -13,12 +13,12 @@ definitions:
       password:
         type: string
     type: object
-host: localhost:8011
+host: zoomapi.icetoast.cloud
 info:
   contact:
     email: fiber@swagger.io
     name: API Support
-  description: Auf Fiber basierendes Backend
+  description: Zoom Schedule API using Fiber v2
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html

@@ -164,11 +164,11 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "localhost:8011",
+	Host:        "zoomapi.icetoast.cloud",
 	BasePath:    "/",
 	Schemes:     []string{},
 	Title:       "Zoom Schedule Backend",
-	Description: "Auf Fiber basierendes Backend",
+	Description: "Zoom Schedule API using Fiber v2",
 }
 
 type s struct{}

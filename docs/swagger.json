@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Auf Fiber basierendes Backend",
+        "description": "Zoom Schedule API using Fiber v2",
         "title": "Zoom Schedule Backend",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
@@ -14,7 +14,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8011",
+    "host": "zoomapi.icetoast.cloud",
     "basePath": "/",
     "paths": {
         "/api/meeting": {
