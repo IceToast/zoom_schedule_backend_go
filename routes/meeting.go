@@ -70,7 +70,6 @@ func GetMeetings(ctx *fiber.Ctx) error {
 	return nil
 }
 
-
 // CreateMeeting godoc
 // @Summary Creates a meeting in the local Mongo database.
 // @Description Requires a JSON encoded Meeting object in the body.
@@ -92,10 +91,36 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	var meeting Meeting
-	json.Unmarshal(ctx.Body(), &meeting)
+	var meetingData struct {
+		Name     string `json:"name"`
+		Link     string `json:"link"`
+		Password string `json:"password"`
+		Day      string `json:"day"`
+	}
+	//Convert HTTP POST Data to Struct
+	json.Unmarshal(ctx.Body(), &meetingData)
 
-	res, err := collection.InsertOne(context.Background(), meeting)
+	update := bson.M{
+		"$push": bson.M{
+			"days.$.meetings": Meeting{
+				Id:       primitive.NewObjectID(),
+				Name:     meetingData.Name,
+				Link:     meetingData.Link,
+				Password: meetingData.Password,
+			},
+		},
+	}
+
+	if meetingData.Name == "" && meetingData.Link == "" && meetingData.Password == "" || meetingData.Day == "" {
+		return ctx.Status(400).SendString("No valid Meeting")
+	}
+
+	objID, _ := primitive.ObjectIDFromHex("6069beb644a1a93e739e47ff")
+
+	//Filter User and Day by Meeting Data from request
+	filter := bson.M{"_id": objID, "days.name": meetingData.Day}
+
+	res, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		ctx.Status(500).SendString(err.Error())
 		return err
@@ -146,7 +171,6 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	ctx.Send(response)
 	return nil
 }
-
 
 // DeleteMeeting godoc
 // @Summary Deletes a meeting in the local Mongo database.
