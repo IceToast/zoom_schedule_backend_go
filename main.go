@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	Host = "zoomapi.icetoast.cloud"
+	Host = "https://zoomapi.icetoast.cloud"
 	Port = ":8011"
 )
 
@@ -38,8 +38,8 @@ func main() {
 	app := fiber.New()
 
 	goth.UseProviders(
-		google.New(os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_SECRET"), "https://"+Host+"/api/auth/google/callback", "profile", "email"),
-		discord.New(os.Getenv("DISCORD_CLIENT_ID"), os.Getenv("DISCORD_SECRET"), "https://"+Host+"/api/auth/discord/callback", discord.ScopeIdentify, discord.ScopeEmail),
+		google.New(os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_SECRET"), Host+"/api/auth/google/callback", "profile", "email"),
+		discord.New(os.Getenv("DISCORD_CLIENT_ID"), os.Getenv("DISCORD_SECRET"), Host+"/api/auth/discord/callback", discord.ScopeIdentify, discord.ScopeEmail),
 		//The Github method at the time is deprecated, wait for next Goth-Release
 		//github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_SECRET"), "https://"+Host+"/api/auth/github/callback"),
 	)
@@ -71,7 +71,7 @@ func main() {
 
 	// Swagger
 	app.Get("/swagger/*", swagger.New(swagger.Config{ // custom
-		URL:         "https://" + Host + "/docs/swagger.json",
+		URL:         Host + "/docs/swagger.json",
 		DeepLinking: false,
 	}))
 
