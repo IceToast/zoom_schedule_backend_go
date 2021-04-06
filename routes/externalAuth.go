@@ -2,7 +2,6 @@ package routes
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"zoom_schedule_backend_go/db"
@@ -28,8 +27,11 @@ type ExternalAuthUser struct {
 	ExpiresAt      time.Time          `json:"expiresat,omitempty" bson:"expiresat,omitempty"`
 }
 
-const collectionExternalAuth = "externalauth"
-const dbName = "zoom_schedule"
+const (
+	collectionExternalAuth = "externalauth"
+	dbName                 = "zoom_schedule"
+	webAppUrl              = "https://zoom.icetoast.cloud"
+)
 
 // ProviderCallback godoc
 // @Summary Handles the OAuth2 authentication callback for a certain goth provider.
@@ -46,7 +48,8 @@ func ProviderCallback(ctx *fiber.Ctx) error {
 		return ctx.SendString(err.Error())
 	}
 
-	externalUser, err := GetExternalUser(user.UserID)
+	var externalUser *ExternalAuthUser
+	externalUser, err = GetExternalUser(user.UserID)
 	if err == mongo.ErrNoDocuments {
 		externalUser, err = CreateUser(ctx, user)
 		if err != nil {
@@ -54,10 +57,11 @@ func ProviderCallback(ctx *fiber.Ctx) error {
 		}
 	}
 
-	session, _ := GetSession(ctx, externalUser)
-	marshalled, _ := json.Marshal(externalUser)
+	GetSession(ctx, externalUser)
 
-	return ctx.SendString(fmt.Sprintf("Welcome %v", string(marshalled)+"Session: "+session))
+	ctx.Redirect(webAppUrl)
+
+	return nil
 }
 
 func GetSession(ctx *fiber.Ctx, externalUser *ExternalAuthUser) (string, error) {
