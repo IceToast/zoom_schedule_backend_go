@@ -126,6 +126,38 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/api/{provider}/callback": {
+            "get": {
+                "description": "Parses the Fiber context to receive the user's ID and creates the user if it does not exist yet.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Handles the OAuth2 authentication callback for a certain goth provider.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "goth_fiber provider (google/discord/github)",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/routes.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

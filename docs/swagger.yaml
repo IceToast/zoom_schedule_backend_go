@@ -26,6 +26,28 @@ info:
   title: Zoom Schedule Backend
   version: "1.0"
 paths:
+  /api/{provider}/callback:
+    get:
+      consumes:
+      - application/json
+      description: Parses the Fiber context to receive the user's ID and creates the
+        user if it does not exist yet.
+      parameters:
+      - description: goth_fiber provider (google/discord/github)
+        in: path
+        name: provider
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.HTTPError'
+      summary: Handles the OAuth2 authentication callback for a certain goth provider.
   /api/meeting:
     delete:
       consumes:

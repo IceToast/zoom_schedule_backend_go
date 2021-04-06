@@ -31,6 +31,15 @@ type ExternalAuthUser struct {
 const collectionExternalAuth = "externalauth"
 const dbName = "zoom_schedule"
 
+// ProviderCallback godoc
+// @Summary Handles the OAuth2 authentication callback for a certain goth provider.
+// @Description Parses the Fiber context to receive the user's ID and creates the user if it does not exist yet.
+// @Accept json
+// @Produce json
+// @Success 200
+// @Param provider path string true "goth_fiber provider (google/discord/github)"
+// @Failure 500 {object} HTTPError
+// @Router /api/{provider}/callback [get]
 func ProviderCallback(ctx *fiber.Ctx) error {
 	user, err := goth_fiber.CompleteUserAuth(ctx)
 	if err != nil {
