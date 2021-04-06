@@ -25,6 +25,14 @@ func CreateInternalUser(username string, email string) (string, error) {
 	internalUser := &User{
 		UserName: username,
 		Email:    email,
+		Days: []Day{
+			0: {Name: "Monday"},
+			1: {Name: "Tuesday"},
+			2: {Name: "Wedensday"},
+			3: {Name: "Thursday"},
+			4: {Name: "Friday"},
+			5: {Name: "Saturday"},
+		},
 	}
 
 	res, err := collection.InsertOne(context.Background(), internalUser)
