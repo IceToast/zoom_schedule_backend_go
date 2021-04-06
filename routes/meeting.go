@@ -30,13 +30,21 @@ type Meeting struct {
 	Password string             `json:"password,omitempty" bson:"password,omitempty"`
 }
 
+type meetingData struct {
+	Id       string `json:"id,omitempty"`
+	Name     string `json:"name"`
+	Link     string `json:"link"`
+	Password string `json:"password"`
+	Day      string `json:"day"`
+}
+
 // GetMeetings godoc
-// @Summary Retrieves meetings from the local Mongo database for a certain user.
+// @Summary Retrieves all meetings from the database for a certain user.
 // @Description Resolves a userId via a given session cookie. The backend throws an error if the cookie does not exist.
 // @Accept json
 // @Produce json
 // @Success 200 {object} Meeting
-// @Failure 404 {object} HTTPError
+// @Failure 403 {object} HTTPError
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [get]
 func GetMeetings(ctx *fiber.Ctx) error {
@@ -72,11 +80,13 @@ func GetMeetings(ctx *fiber.Ctx) error {
 }
 
 // CreateMeeting godoc
-// @Summary Creates a meeting in the local Mongo database.
+// @Summary Creates a meeting in the database.
 // @Description Requires a JSON encoded Meeting object in the body.
+// @Param request body {"name": string, "link": string, "password": string} true "Meeting Data"
 // @Accept json
 // @Produce json
 // @Success 200
+// @Failure 403
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [post]
 func CreateMeeting(ctx *fiber.Ctx) error {
@@ -92,12 +102,7 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	var meetingData struct {
-		Name     string `json:"name"`
-		Link     string `json:"link"`
-		Password string `json:"password"`
-		Day      string `json:"day"`
-	}
+	var meetingData meetingData
 	//Convert HTTP POST Data to Struct
 	json.Unmarshal(ctx.Body(), &meetingData)
 
@@ -136,11 +141,13 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 }
 
 // UpdateMeeting godoc
-// @Summary Updates a meeting in the local Mongo database.
-// @Description Requires a userId
+// @Summary Updates a meeting in the database.
+// @Description Requires a JSON encoded Meeting object in the body
 // @Accept json
 // @Produce json
+// @Param request body meetingData true "Updated Meeting Data and MeetingID"
 // @Success 200
+// @Failure 403
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [put]
 func UpdateMeeting(ctx *fiber.Ctx) error {
@@ -156,13 +163,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	var meetingData struct {
-		Id       string `json:"id"`
-		Name     string `json:"name"`
-		Link     string `json:"link"`
-		Password string `json:"password"`
-		Day      string `json:"day"`
-	}
+	var meetingData meetingData
 	//Convert HTTP POST Data to Struct
 	json.Unmarshal(ctx.Body(), &meetingData)
 
@@ -206,11 +207,12 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 }
 
 // DeleteMeeting godoc
-// @Summary Deletes a meeting in the local Mongo database.
-// @Description Requires a userId
+// @Summary Deletes a meeting in the Database
+// @Description Requires a JSON encoded Meeting object in the body
 // @Accept json
 // @Produce json
 // @Success 200
+// @Failure 403
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [delete]
 func DeleteMeeting(ctx *fiber.Ctx) error {
