@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	Host = "https://zoomapi.icetoast.cloud"
+	Host = "http://localhost:8011"
 	Port = ":8011"
 )
 

@@ -109,7 +109,7 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	var meetingData meetingData
+	var meetingData createMeetingData
 	//Convert HTTP POST Data to Struct
 	json.Unmarshal(ctx.Body(), &meetingData)
 
