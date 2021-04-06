@@ -20,6 +20,9 @@ jobs:
 
       - name: Build
         run: go build -o dist/zoom_schedule_api
+      
+      - name: Create Swagger Docs
+        run:  swag init
 
       - name: Copy Docs to dist/
         run: cp -r docs/ dist/docs/
