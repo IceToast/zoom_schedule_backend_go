@@ -21,8 +21,11 @@ jobs:
       - name: Build
         run: go build -o dist/zoom_schedule_api
       
+      - name: Download swag binary
+        run: go get -u github.com/swaggo/swag/cmd/swag
+
       - name: Create Swagger Docs
-        run:  swag init
+        run: swag init
 
       - name: Copy Docs to dist/
         run: cp -r docs/ dist/docs/
