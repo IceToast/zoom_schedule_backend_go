@@ -30,11 +30,18 @@ type Meeting struct {
 	Password string             `json:"password,omitempty" bson:"password,omitempty"`
 }
 
-type meetingData struct {
+type updateMeetingData struct {
 	Id       string `json:"id,omitempty"`
 	Name     string `json:"name"`
 	Link     string `json:"link"`
 	Password string `json:"password"`
+	Day      string `json:"day"`
+}
+
+type createMeetingData struct {
+	Name     string `json:"name"`
+	Link     string `json:"link"`
+	Password string `json:"password`
 	Day      string `json:"day"`
 }
 
@@ -82,7 +89,7 @@ func GetMeetings(ctx *fiber.Ctx) error {
 // CreateMeeting godoc
 // @Summary Creates a meeting in the database.
 // @Description Requires a JSON encoded Meeting object in the body.
-// @Param request body {"name": string, "link": string, "password": string} true "Meeting Data"
+// @Param request body createMeetingData true "Meeting Data required to create a Meeting"
 // @Accept json
 // @Produce json
 // @Success 200
@@ -145,7 +152,7 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 // @Description Requires a JSON encoded Meeting object in the body
 // @Accept json
 // @Produce json
-// @Param request body meetingData true "Updated Meeting Data and MeetingID"
+// @Param request body updateMeetingData true "Meeting Data required to update a Meeting"
 // @Success 200
 // @Failure 403
 // @Failure 500 {object} HTTPError
@@ -163,7 +170,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	var meetingData meetingData
+	var meetingData updateMeetingData
 	//Convert HTTP POST Data to Struct
 	json.Unmarshal(ctx.Body(), &meetingData)
 
