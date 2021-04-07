@@ -45,6 +45,11 @@ type createMeetingData struct {
 	Day      string `json:"day"`
 }
 
+type deleteMeetingData struct {
+	Id  string `json:"id"`
+	Day string `json:"day"`
+}
+
 // GetMeetings godoc
 // @Summary Retrieves all meetings from the database for a certain user.
 // @Description Resolves a userId via a given session cookie. The backend throws an error if the cookie does not exist.
@@ -93,7 +98,7 @@ func GetMeetings(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Failure 403
+// @Failure 403 string
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [post]
 func CreateMeeting(ctx *fiber.Ctx) error {
@@ -218,11 +223,13 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 // @Description Requires a JSON encoded Meeting object in the body
 // @Accept json
 // @Produce json
+// @Param request body deleteMeetingData true "Meeting Data required to delete a Meeting"
 // @Success 200
 // @Failure 403
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [delete]
 func DeleteMeeting(ctx *fiber.Ctx) error {
+
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
@@ -230,16 +237,41 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
-
-	objID, _ := primitive.ObjectIDFromHex(internalUserId)
-	res, err := collection.DeleteOne(context.Background(), bson.M{"_id": objID})
-
 	if err != nil {
 		ctx.Status(500).SendString(err.Error())
 		return err
 	}
 
+	var meetingData deleteMeetingData
+	//Convert HTTP POST Data to Struct
+	json.Unmarshal(ctx.Body(), &meetingData)
+
+	//Do not update if request Data is invalid -> no Day to select or no meeting properties
+	if meetingData.Id == "" || meetingData.Day == "" {
+		return ctx.Status(400).SendString("No valid Meeting")
+	}
+
+	//Convert Ids of type string to type "ObjectIds"
+	userObjId, _ := primitive.ObjectIDFromHex(internalUserId)
+	meetingObjId, _ := primitive.ObjectIDFromHex(meetingData.Id)
+
+	delete := bson.M{
+		"$pull": bson.M{
+			"days.$.meetings": bson.M{
+				"_id": meetingObjId,
+			},
+		},
+	}
+
+	//Filter days array to update meeting in correct day
+	filter := bson.D{{"_id", userObjId}, {"days.name", meetingData.Day}}
+	//Filter meetings Array to update correct meeting
+
+	res, err := collection.UpdateOne(context.Background(), filter, delete)
+	if err != nil {
+		return ctx.Status(500).SendString(err.Error())
+	}
+
 	jsonResponse, _ := json.Marshal(res)
-	ctx.Send(jsonResponse)
-	return nil
+	return ctx.Send(jsonResponse)
 }
