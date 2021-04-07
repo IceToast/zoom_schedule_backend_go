@@ -61,7 +61,7 @@ func GetMeetings(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Failure 403
+// @Failure 403	{object} HTTPError
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [post]
 func CreateMeeting(ctx *fiber.Ctx) error {
@@ -122,7 +122,7 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param request body updateMeetingData true "Meeting Data required to update a Meeting"
 // @Success 200
-// @Failure 403
+// @Failure 403	{object} HTTPError
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [put]
 func UpdateMeeting(ctx *fiber.Ctx) error {
@@ -188,7 +188,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param request body deleteMeetingData true "Meeting Data required to delete a Meeting"
 // @Success 200
-// @Failure 403
+// @Failure 403	{object} HTTPError
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [delete]
 func DeleteMeeting(ctx *fiber.Ctx) error {
