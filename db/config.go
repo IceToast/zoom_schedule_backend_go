@@ -47,11 +47,11 @@ type Config struct {
 }
 
 var ConfigDefault = Config{
-    Next:             nil,
-    AllowOrigins:     "*",
-    AllowMethods:     "GET,POST,HEAD,PUT,DELETE",
-    AllowHeaders:     "",
-    AllowCredentials: false,
-    ExposeHeaders:    "",
-    MaxAge:           0,
+	Next:             nil,
+	AllowOrigins:     "http://localhost:3000, https://zoom.icetoast.cloud",
+	AllowMethods:     "GET,POST,PUT,DELETE",
+	AllowHeaders:     "Origin, Content-Type, Accept",
+	AllowCredentials: true,
+	ExposeHeaders:    "",
+	MaxAge:           0,
 }

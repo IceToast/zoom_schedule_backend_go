@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"zoom_schedule_backend_go/db"
 	"zoom_schedule_backend_go/routes"
 
 	swagger "github.com/arsmn/fiber-swagger/v2"
@@ -44,7 +45,7 @@ func main() {
 		//github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_SECRET"), "https://"+Host+"/api/auth/github/callback"),
 	)
 
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config(db.ConfigDefault)))
 	app.Static("/docs", "./docs") // Serve static docs/ folder
 
 	api := app.Group("/api")
