@@ -98,7 +98,7 @@ func GetMeetings(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Failure 403 string
+// @Failure 403
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [post]
 func CreateMeeting(ctx *fiber.Ctx) error {
