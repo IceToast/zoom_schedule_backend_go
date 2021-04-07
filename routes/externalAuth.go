@@ -2,7 +2,6 @@ package routes
 
 import (
 	"encoding/json"
-	"time"
 
 	"zoom_schedule_backend_go/db"
 
@@ -10,22 +9,9 @@ import (
 	"github.com/markbates/goth"
 	"github.com/shareed2k/goth_fiber"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/net/context"
 )
-
-type ExternalAuthUser struct {
-	Id             primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	ExternalUserId string             `json:"externaluserid,omitempty" bson:"externaluserid,omitempty"`
-	InternalUserId string             `json:"internaluserid,omitempty" bson:"internaluserid,omitempty"`
-	UserName       string             `json:"name,omitempty" bson":name,omitempty"`
-	Email          string             `json:"link,omitempty" bson":link,omitempty`
-	Platform       string             `json:"platform,omitempty" bson:"platform,omitempty`
-	AccessToken    string             `json:"accesstoken,omitempty" bson:"accesstoken,omitempty"`
-	AvatarURL      string             `json:"avatarurl,omitempty" bson:"avatarurl,omitempty"`
-	ExpiresAt      time.Time          `json:"expiresat,omitempty" bson:"expiresat,omitempty"`
-}
 
 const (
 	collectionExternalAuth = "externalauth"

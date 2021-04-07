@@ -13,43 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type HTTPError struct {
-	status  string
-	message string
-}
-
-type Day struct {
-	Name     string     `json:"name,omitempty" bson:"name,omitempty"`
-	Meetings *[]Meeting `json:"meetings,omitempty" bson:"meetings,omitempty"`
-}
-
-type Meeting struct {
-	Id       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name     string             `json:"name,omitempty" bson":name,omitempty"`
-	Link     string             `json:"link,omitempty" bson":link,omitempty`
-	Password string             `json:"password,omitempty" bson:"password,omitempty"`
-}
-
-type updateMeetingData struct {
-	Id       string `json:"id,omitempty"`
-	Name     string `json:"name"`
-	Link     string `json:"link"`
-	Password string `json:"password"`
-	Day      string `json:"day"`
-}
-
-type createMeetingData struct {
-	Name     string `json:"name"`
-	Link     string `json:"link"`
-	Password string `json:"password`
-	Day      string `json:"day"`
-}
-
-type deleteMeetingData struct {
-	Id  string `json:"id"`
-	Day string `json:"day"`
-}
-
 // GetMeetings godoc
 // @Summary Retrieves all meetings from the database for a certain user.
 // @Description Resolves a userId via a given session cookie. The backend throws an error if the cookie does not exist.
