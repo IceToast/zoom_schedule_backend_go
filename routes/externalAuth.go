@@ -39,7 +39,7 @@ const (
 // @Accept json
 // @Produce json
 // @Success 200
-// @Param provider path string true "goth_fiber provider (google/discord/github)"
+// @Param provider path string true "Provider: Google, Discord"
 // @Failure 500 {object} HTTPError
 // @Router /api/{provider}/callback [get]
 func ProviderCallback(ctx *fiber.Ctx) error {

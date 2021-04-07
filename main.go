@@ -33,7 +33,7 @@ func init() {
 // @contact.email fiber@swagger.io
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-// @host zoomapi.icetoast.cloud
+// @host zoom.icetoast.cloud
 // @BasePath /
 func main() {
 	app := fiber.New()
