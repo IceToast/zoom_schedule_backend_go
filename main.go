@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	Host = "https://zoomapi.icetoast.cloud"
+	Host = "https://zoom.icetoast.cloud"
 	Port = ":8011"
 )
 
@@ -71,7 +71,7 @@ func main() {
 	meetings.Delete("/", routes.DeleteMeeting)
 
 	// Swagger
-	app.Get("/swagger/*", swagger.New(swagger.Config{ // custom
+	api.Get("/swagger/*", swagger.New(swagger.Config{ // custom
 		URL:         Host + "/docs/swagger.json",
 		DeepLinking: false,
 	}))
