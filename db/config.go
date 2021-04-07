@@ -48,7 +48,7 @@ type Config struct {
 
 var ConfigDefault = Config{
 	Next:             nil,
-	AllowOrigins:     "http://localhost:3000, https://zoom.icetoast.cloud",
+	AllowOrigins:     "*",
 	AllowMethods:     "GET,POST,PUT,DELETE",
 	AllowHeaders:     "Origin, X-Requested-With, Content-Type, Accept, Authorization",
 	AllowCredentials: true,
