@@ -50,7 +50,7 @@ var ConfigDefault = Config{
 	Next:             nil,
 	AllowOrigins:     "http://localhost:3000, https://zoom.icetoast.cloud",
 	AllowMethods:     "GET,POST,PUT,DELETE",
-	AllowHeaders:     "Origin, Content-Type, Accept",
+	AllowHeaders:     "Origin, X-Requested-With, Content-Type, Accept, Authorization",
 	AllowCredentials: true,
 	ExposeHeaders:    "",
 	MaxAge:           0,
