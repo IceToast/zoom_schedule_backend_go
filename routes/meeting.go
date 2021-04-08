@@ -18,7 +18,7 @@ import (
 // @Description Resolves a userId via a given session cookie. The backend throws an error if the cookie does not exist.
 // @Accept json
 // @Produce json
-// @Success 200 {object} Meeting
+// @Success 200 {object} []Day
 // @Failure 403 {object} HTTPError
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [get]
@@ -60,7 +60,7 @@ func GetMeetings(ctx *fiber.Ctx) error {
 // @Param request body createMeetingData true "Meeting Data required to create a Meeting"
 // @Accept json
 // @Produce json
-// @Success 200
+// @Success 200 {object} Meeting
 // @Failure 403	{object} HTTPError
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [post]
@@ -87,13 +87,14 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	}
 
 	//Convert Ids of type string to type "ObjectIds"
-	objID, _ := primitive.ObjectIDFromHex(internalUserId)
+	userObjID, _ := primitive.ObjectIDFromHex(internalUserId)
+	meetingObjId := primitive.NewObjectID()
 
 	//Map request data to meeting update struct
 	update := bson.M{
 		"$push": bson.M{
 			"days.$.meetings": Meeting{
-				Id:       primitive.NewObjectID(),
+				Id:       meetingObjId,
 				Name:     meetingData.Name,
 				Link:     meetingData.Link,
 				Password: meetingData.Password,
@@ -102,15 +103,22 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	}
 
 	//Filter User and Day by Meeting Data from request
-	filter := bson.M{"_id": objID, "days.name": meetingData.Day}
+	filter := bson.M{"_id": userObjID, "days.name": meetingData.Day}
 
-	res, err := collection.UpdateOne(context.Background(), filter, update)
+	_, err = collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		ctx.Status(500).SendString(err.Error())
 		return err
 	}
 
-	response, _ := json.Marshal(res)
+	meeting := Meeting{
+		Id:       meetingObjId,
+		Name:     meetingData.Name,
+		Link:     meetingData.Link,
+		Password: meetingData.Password,
+	}
+
+	response, _ := json.Marshal(meeting)
 	ctx.Send(response)
 	return nil
 }
