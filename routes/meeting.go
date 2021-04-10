@@ -32,7 +32,6 @@ func GetMeetings(ctx *fiber.Ctx) error {
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
 		return ctx.Status(500).SendString(err.Error())
-
 	}
 
 	objID, _ := primitive.ObjectIDFromHex(internalUserId)
