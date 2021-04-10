@@ -1,12 +1,9 @@
 package routes
 
 import (
-	"encoding/json"
-
 	"zoom_schedule_backend_go/db"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/markbates/goth"
 	"github.com/shareed2k/goth_fiber"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -50,26 +47,6 @@ func ProviderCallback(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func GetSession(ctx *fiber.Ctx, externalUser *ExternalAuthUser) (string, error) {
-	store := db.GetStore()
-	session, err := store.Get(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	// Set Session Data as key/value-pair
-	session.Set("internalUserId", externalUser.InternalUserId)
-
-	userId := session.Get("internalUserId").(string)
-
-	// save session
-	if err := session.Save(); err != nil {
-		return "", err
-	}
-
-	return userId, nil
-}
-
 func GetExternalUser(externaluserID string) (*ExternalAuthUser, error) {
 	collection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
 	if err != nil {
@@ -88,36 +65,16 @@ func GetExternalUser(externaluserID string) (*ExternalAuthUser, error) {
 	return result, nil
 }
 
-func CreateUser(ctx *fiber.Ctx, user goth.User) (*ExternalAuthUser, error) {
+func DeleteExternalUser(internalUserId string) error {
 	collection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	internalUserId, err := CreateInternalUser(user.Name, user.Email)
+	_, err = collection.DeleteOne(context.Background(), bson.M{"internaluserid": internalUserId})
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	externalUser := &ExternalAuthUser{
-		ExternalUserId: user.UserID,
-		InternalUserId: internalUserId,
-		UserName:       user.Name,
-		Email:          user.Email,
-		Platform:       user.Provider,
-		AccessToken:    user.AccessToken,
-		AvatarURL:      user.AvatarURL,
-		ExpiresAt:      user.ExpiresAt,
-	}
-
-	res, err := collection.InsertOne(context.Background(), externalUser)
-	if err != nil {
-		return nil, err
-	}
-
-	response, _ := json.Marshal(res)
-
-	ctx.SendString(string(response))
-
-	return externalUser, nil
+	return nil
 }

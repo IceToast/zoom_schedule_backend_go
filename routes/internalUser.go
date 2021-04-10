@@ -4,6 +4,7 @@ import (
 	"context"
 	"zoom_schedule_backend_go/db"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -37,4 +38,20 @@ func CreateInternalUser(username string, email string) (string, error) {
 	internalUserIdString := internalUserId.Hex()
 
 	return internalUserIdString, nil
+}
+
+func DeleteInternalUser(internalUserId string) error {
+	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
+	if err != nil {
+		return err
+	}
+
+	userObjId, _ := primitive.ObjectIDFromHex(internalUserId)
+
+	_, err = collection.DeleteOne(context.Background(), bson.M{"_id": userObjId})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	Host = "https://zoom.icetoast.cloud"
+	Host = "http://localhost:8011"
 	Port = ":8011"
 )
 
@@ -62,6 +62,10 @@ func main() {
 		ctx.Redirect("/")
 		return nil
 	})
+
+	// User-Endpunkte
+	user := api.Group("/user")
+	user.Delete("/", routes.DeleteUser)
 
 	// Meeting-Endpunkte
 	meetings := api.Group("/meeting")
