@@ -3,8 +3,8 @@ package routes
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"zoom_schedule_backend_go/db"
+	"zoom_schedule_backend_go/helpers"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
@@ -23,10 +23,11 @@ import (
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [get]
 func GetMeetings(ctx *fiber.Ctx) error {
-	//internalUserId, err := helpers.VerifyCookie(ctx)
-	//if err != nil {
-	//	return ctx.Status(403).SendString(err.Error())
-	//}
+	//Verify Cookie
+	internalUserId, err := helpers.VerifyCookie(ctx)
+	if err != nil {
+		return ctx.Status(403).SendString(err.Error())
+	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
@@ -34,7 +35,7 @@ func GetMeetings(ctx *fiber.Ctx) error {
 
 	}
 
-	objID, _ := primitive.ObjectIDFromHex("606bb5baba0883bd109d3b1f")
+	objID, _ := primitive.ObjectIDFromHex(internalUserId)
 
 	var result *User
 	err = collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&result)
@@ -66,10 +67,10 @@ func GetMeetings(ctx *fiber.Ctx) error {
 // @Router /api/meeting [post]
 func CreateMeeting(ctx *fiber.Ctx) error {
 	//Verify Cookie
-	//internalUserId, err := helpers.VerifyCookie(ctx)
-	//if err != nil {
-	//	return ctx.Status(403).SendString(err.Error())
-	//}
+	internalUserId, err := helpers.VerifyCookie(ctx)
+	if err != nil {
+		return ctx.Status(403).SendString(err.Error())
+	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
@@ -81,14 +82,13 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	//Convert HTTP POST Data to Struct
 	json.Unmarshal(ctx.Body(), &meetingData)
 
-	fmt.Println(meetingData)
 	//Do not update if request Data is invalid -> no Day to select or no meeting properties
 	if meetingData.Name == "" && meetingData.Link == "" && meetingData.Password == "" || meetingData.Day == "" {
 		return ctx.Status(400).SendString("No valid Meeting")
 	}
 
 	//Convert Ids of type string to type "ObjectIds"
-	userObjID, _ := primitive.ObjectIDFromHex("606bb5baba0883bd109d3b1f")
+	userObjID, _ := primitive.ObjectIDFromHex(internalUserId)
 	meetingObjId := primitive.NewObjectID()
 
 	//Map request data to meeting update struct
@@ -136,10 +136,10 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 // @Router /api/meeting [put]
 func UpdateMeeting(ctx *fiber.Ctx) error {
 	//Verify Cookie
-	//internalUserId, err := helpers.VerifyCookie(ctx)
-	//if err != nil {
-	//	return ctx.Status(403).SendString(err.Error())
-	//}
+	internalUserId, err := helpers.VerifyCookie(ctx)
+	if err != nil {
+		return ctx.Status(403).SendString(err.Error())
+	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
@@ -157,7 +157,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	}
 
 	//Convert Ids of type string to type "ObjectIds"
-	userObjId, _ := primitive.ObjectIDFromHex("606bb5baba0883bd109d3b1f")
+	userObjId, _ := primitive.ObjectIDFromHex(internalUserId)
 	meetingObjId, _ := primitive.ObjectIDFromHex(meetingData.Id)
 
 	//Map request data to meeting update struct
@@ -179,13 +179,20 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 		Filters: []interface{}{bson.M{"elem._id": meetingObjId}},
 	})
 
-	res, err := collection.UpdateOne(context.Background(), filter, update, filterArray)
+	_, err = collection.UpdateOne(context.Background(), filter, update, filterArray)
 	if err != nil {
 		ctx.Status(500).SendString(err.Error())
 		return err
 	}
 
-	response, _ := json.Marshal(res)
+	meeting := Meeting{
+		Id:       meetingObjId,
+		Name:     meetingData.Name,
+		Link:     meetingData.Link,
+		Password: meetingData.Password,
+	}
+
+	response, _ := json.Marshal(meeting)
 	ctx.Send(response)
 	return nil
 }
@@ -201,12 +208,11 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [delete]
 func DeleteMeeting(ctx *fiber.Ctx) error {
-
 	//Verify Cookie
-	//internalUserId, err := helpers.VerifyCookie(ctx)
-	//if err != nil {
-	//	return ctx.Status(403).SendString(err.Error())
-	//}
+	internalUserId, err := helpers.VerifyCookie(ctx)
+	if err != nil {
+		return ctx.Status(403).SendString(err.Error())
+	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
@@ -224,7 +230,7 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 	}
 
 	//Convert Ids of type string to type "ObjectIds"
-	userObjId, _ := primitive.ObjectIDFromHex("606bb5baba0883bd109d3b1f")
+	userObjId, _ := primitive.ObjectIDFromHex(internalUserId)
 	meetingObjId, _ := primitive.ObjectIDFromHex(meetingData.Id)
 
 	delete := bson.M{

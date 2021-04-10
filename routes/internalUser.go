@@ -22,7 +22,7 @@ func CreateInternalUser(username string, email string) (string, error) {
 		Days: []Day{
 			0: {Name: "Monday"},
 			1: {Name: "Tuesday"},
-			2: {Name: "Wedensday"},
+			2: {Name: "Wednesday"},
 			3: {Name: "Thursday"},
 			4: {Name: "Friday"},
 			5: {Name: "Saturday"},
