@@ -65,7 +65,8 @@ func main() {
 
 	// User-Endpunkte
 	user := api.Group("/user")
-	user.Delete("/", routes.DeleteUser)
+	//user.Delete("/", routes.DeleteUser)
+	user.Get("/logout", routes.Logout)
 
 	// Meeting-Endpunkte
 	meetings := api.Group("/meeting")

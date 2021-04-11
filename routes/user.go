@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"zoom_schedule_backend_go/db"
+	"zoom_schedule_backend_go/helpers"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/markbates/goth"
@@ -125,4 +126,23 @@ func GetSession(ctx *fiber.Ctx, externalUser *ExternalAuthUser) (string, error) 
 func DeleteSession(sessionId primitive.ObjectID) error {
 
 	return nil
+}
+
+func Logout(ctx *fiber.Ctx) error {
+	//Verify Cookie
+	_, err := helpers.VerifyCookie(ctx)
+	if err != nil {
+		return ctx.Status(403).SendString(err.Error())
+	}
+
+	store := db.GetStore()
+	session, err := store.Get(ctx)
+	if err != nil {
+		return ctx.Status(500).SendString(err.Error())
+	}
+
+	session.Destroy()
+
+	return nil
+
 }
