@@ -143,6 +143,7 @@ func Logout(ctx *fiber.Ctx) error {
 
 	session.Destroy()
 
+	ctx.Redirect(webAppUrl)
 	return nil
 
 }
