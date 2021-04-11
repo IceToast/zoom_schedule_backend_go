@@ -136,7 +136,7 @@ func DeleteSession(sessionId primitive.ObjectID) error {
 // @Success 200
 // @Failure 403 {object} HTTPError
 // @Failure 500 {object} HTTPError
-// @Router /api/user [get]
+// @Router /api/user/logout [get]
 func Logout(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	_, err := helpers.VerifyCookie(ctx)
