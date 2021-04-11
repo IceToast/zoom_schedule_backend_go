@@ -41,7 +41,7 @@ func GetMeetings(ctx *fiber.Ctx) error {
 	if err != nil {
 		// ErrNoDocuments means that the filter did not match any documents in the collection
 		if err == mongo.ErrNoDocuments {
-			return err
+			return ctx.Status(500).SendString("User not found")
 		}
 	}
 
@@ -50,8 +50,8 @@ func GetMeetings(ctx *fiber.Ctx) error {
 	}
 
 	json, _ := json.Marshal(result.Days)
-	ctx.Send(json)
-	return nil
+	return ctx.Send(json)
+
 }
 
 // CreateMeeting godoc
@@ -73,8 +73,8 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
-		ctx.Status(500).SendString(err.Error())
-		return err
+		return ctx.Status(500).SendString(err.Error())
+
 	}
 
 	var meetingData createMeetingData
@@ -107,8 +107,8 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 
 	_, err = collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		ctx.Status(500).SendString(err.Error())
-		return err
+		return ctx.Status(500).SendString(err.Error())
+
 	}
 
 	meeting := Meeting{
@@ -119,8 +119,7 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	}
 
 	response, _ := json.Marshal(meeting)
-	ctx.Send(response)
-	return nil
+	return ctx.Send(response)
 }
 
 // UpdateMeeting godoc
@@ -142,8 +141,8 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
-		ctx.Status(500).SendString(err.Error())
-		return err
+		return ctx.Status(500).SendString(err.Error())
+
 	}
 
 	var meetingData updateMeetingData
@@ -180,8 +179,8 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 
 	_, err = collection.UpdateOne(context.Background(), filter, update, filterArray)
 	if err != nil {
-		ctx.Status(500).SendString(err.Error())
-		return err
+		return ctx.Status(500).SendString(err.Error())
+
 	}
 
 	meeting := Meeting{
@@ -192,8 +191,8 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	}
 
 	response, _ := json.Marshal(meeting)
-	ctx.Send(response)
-	return nil
+
+	return ctx.Send(response)
 }
 
 // DeleteMeeting godoc
@@ -215,8 +214,7 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
-		ctx.Status(500).SendString(err.Error())
-		return err
+		return ctx.Status(500).SendString(err.Error())
 	}
 
 	var meetingData deleteMeetingData

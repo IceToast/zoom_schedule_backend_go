@@ -61,3 +61,11 @@ type deleteMeetingData struct {
 	Id  string `json:"id"`
 	Day string `json:"day"`
 }
+
+type userData struct {
+	Id        string `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	AvatarUrl string `json:"avatarurl"`
+	Platform  string `json:"platform"`
+}

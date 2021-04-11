@@ -11,6 +11,7 @@ import (
 	"github.com/markbates/goth"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/net/context"
 )
 
@@ -128,6 +129,14 @@ func DeleteSession(sessionId primitive.ObjectID) error {
 	return nil
 }
 
+// Logout godoc
+// @Summary Deletes user session, expires session_id cookie and redirects to startpage
+// @Description Resolves a userId via a given session cookie.
+// @Produce json
+// @Success 200
+// @Failure 403 {object} HTTPError
+// @Failure 500 {object} HTTPError
+// @Router /api/user [get]
 func Logout(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	_, err := helpers.VerifyCookie(ctx)
@@ -143,7 +152,65 @@ func Logout(ctx *fiber.Ctx) error {
 
 	session.Destroy()
 
-	ctx.Redirect(webAppUrl)
-	return nil
+	return ctx.Redirect(webAppUrl)
+}
+
+// GetUserData godoc
+// @Summary Retrieves user data of logged in user
+// @Description Resolves a userId via a given session cookie.
+// @Produce json
+// @Success 200 {object} userData
+// @Failure 403 {object} HTTPError
+// @Failure 500 {object} HTTPError
+// @Router /api/user [get]
+func GetUserData(ctx *fiber.Ctx) error {
+	//Verify Cookie
+	internalUserId, err := helpers.VerifyCookie(ctx)
+	if err != nil {
+		return ctx.Status(403).SendString(err.Error())
+	}
+
+	userCollection, err := db.GetMongoDbCollection(dbName, collectionUser)
+	if err != nil {
+		return ctx.SendStatus(500)
+	}
+
+	externalAuthCollection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
+	if err != nil {
+		return ctx.SendStatus(500)
+	}
+
+	internalUserObjId, _ := primitive.ObjectIDFromHex(internalUserId)
+
+	var internalUser *User
+	err = userCollection.FindOne(context.Background(), bson.M{"_id": internalUserObjId}).Decode(&internalUser)
+	if err != nil {
+		// ErrNoDocuments means that the filter did not match any documents in the collection
+		if err == mongo.ErrNoDocuments {
+			return ctx.Status(500).SendString("User not found")
+		}
+	}
+	fmt.Println("here1", internalUser)
+
+	var externalAuthUser *ExternalAuthUser
+	err = externalAuthCollection.FindOne(context.Background(), bson.M{"internaluserid": internalUserId}).Decode(&externalAuthUser)
+	if err != nil {
+		// ErrNoDocuments means that the filter did not match any documents in the collection
+		if err == mongo.ErrNoDocuments {
+			return ctx.Status(500).SendString("User not found")
+		}
+	}
+	fmt.Println("here2", externalAuthUser)
+
+	userdata := userData{
+		Id:        internalUserId,
+		Username:  internalUser.UserName,
+		Email:     internalUser.Email,
+		AvatarUrl: externalAuthUser.AvatarURL,
+		Platform:  externalAuthUser.Platform,
+	}
+
+	response, _ := json.Marshal(userdata)
+	return ctx.Send(response)
 
 }
