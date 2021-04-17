@@ -6,6 +6,11 @@
 
 This is the backend for the [Zoom Schedule App](https://github.com/IceToast/zoom_schedule)
 
+To host this App yourself (without editing much) you have to change the "Host" constant, to your desired OAuth Callback Domain, in the main.go and provide some environment variables (for Example in a .env-file) like the following:
+- MongoDB Connection string ("CONNECTION_STRING=")
+- OAuth Provider IDs ("PROVIDER_CLIENT_ID=")
+- OAuth Provider Secrets ("PROVIDER_SECRET=")
+
 
 ## Resolve missing dependencies
 ```
