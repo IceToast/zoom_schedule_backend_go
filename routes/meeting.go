@@ -109,7 +109,7 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(500).SendString(err.Error())
 	}
-	if res.ModifiedCount <= 1 {
+	if res.ModifiedCount < 1 {
 		return ctx.Status(500).SendString("Could not create Meeting")
 	}
 
@@ -183,7 +183,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(500).SendString(err.Error())
 	}
-	if res.ModifiedCount <= 1 {
+	if res.ModifiedCount < 1 {
 		return ctx.Status(500).SendString("Could not update Meeting")
 	}
 
@@ -250,7 +250,7 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(500).SendString(err.Error())
 	}
-	if res.ModifiedCount <= 1 {
+	if res.ModifiedCount < 1 {
 		return ctx.Status(500).SendString("Could not delete Meeting")
 	}
 
@@ -296,7 +296,7 @@ func FlushSchedule(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(500).SendString(err.Error())
 	}
-	if res.ModifiedCount <= 1 {
+	if res.ModifiedCount < 1 {
 		return ctx.Status(500).SendString("Could not flush Schedule")
 	}
 
