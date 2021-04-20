@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/discord"
+	"github.com/markbates/goth/providers/github"
 	"github.com/markbates/goth/providers/google"
 	"github.com/shareed2k/goth_fiber"
 	"github.com/subosito/gotenv"
@@ -41,8 +42,7 @@ func main() {
 	goth.UseProviders(
 		google.New(os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_SECRET"), Host+"/api/auth/google/callback", "profile", "email"),
 		discord.New(os.Getenv("DISCORD_CLIENT_ID"), os.Getenv("DISCORD_SECRET"), Host+"/api/auth/discord/callback", discord.ScopeIdentify, discord.ScopeEmail),
-		//The Github method at the time is deprecated, wait for next Goth-Release
-		//github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_SECRET"), "https://"+Host+"/api/auth/github/callback"),
+		github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_SECRET"), Host+"/api/auth/github/callback"),
 	)
 
 	app.Use(cors.New(cors.Config(db.ConfigDefault)))
