@@ -75,6 +75,7 @@ func main() {
 	meetings.Post("/", routes.CreateMeeting)
 	meetings.Put("/", routes.UpdateMeeting)
 	meetings.Delete("/", routes.DeleteMeeting)
+	meetings.Delete("/flushSchedule", routes.FlushSchedule)
 
 	// Swagger
 	api.Get("/swagger/*", swagger.New(swagger.Config{ // custom

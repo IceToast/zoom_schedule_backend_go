@@ -105,10 +105,12 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	//Filter User and Day by Meeting Data from request
 	filter := bson.M{"_id": userObjID, "days.name": meetingData.Day}
 
-	_, err = collection.UpdateOne(context.Background(), filter, update)
+	res, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return ctx.Status(500).SendString(err.Error())
-
+	}
+	if res.ModifiedCount <= 1 {
+		return ctx.Status(500).SendString("Could not create Meeting")
 	}
 
 	meeting := Meeting{
@@ -177,10 +179,12 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 		Filters: []interface{}{bson.M{"elem._id": meetingObjId}},
 	})
 
-	_, err = collection.UpdateOne(context.Background(), filter, update, filterArray)
+	res, err := collection.UpdateOne(context.Background(), filter, update, filterArray)
 	if err != nil {
 		return ctx.Status(500).SendString(err.Error())
-
+	}
+	if res.ModifiedCount <= 1 {
+		return ctx.Status(500).SendString("Could not update Meeting")
 	}
 
 	meeting := Meeting{
@@ -240,13 +244,54 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 
 	//Filter days array to update meeting in correct day
 	filter := bson.D{{"_id", userObjId}, {"days.name", meetingData.Day}}
-	//Filter meetings Array to update correct meeting
 
+	//Filter meetings Array to update correct meeting
 	res, err := collection.UpdateOne(context.Background(), filter, delete)
 	if err != nil {
 		return ctx.Status(500).SendString(err.Error())
 	}
+	if res.ModifiedCount <= 1 {
+		return ctx.Status(500).SendString("Could not delete Meeting")
+	}
 
-	jsonResponse, _ := json.Marshal(res)
-	return ctx.Send(jsonResponse)
+	return ctx.SendStatus(200)
+}
+
+func FlushSchedule(ctx *fiber.Ctx) error {
+	//Verify Cookie
+	internalUserId, err := helpers.VerifyCookie(ctx)
+	if err != nil {
+		return ctx.Status(403).SendString(err.Error())
+	}
+
+	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
+	if err != nil {
+		return ctx.Status(500).SendString(err.Error())
+	}
+
+	userObjId, _ := primitive.ObjectIDFromHex(internalUserId)
+	filter := bson.D{{"_id", userObjId}}
+
+	//Map request data to meeting update struct
+	emptySchedule := bson.M{
+		"$set": bson.M{
+			"days": []Day{
+				0: {Name: "Monday", Meetings: &[]Meeting{}},
+				1: {Name: "Tuesday", Meetings: &[]Meeting{}},
+				2: {Name: "Wednesday", Meetings: &[]Meeting{}},
+				3: {Name: "Thursday", Meetings: &[]Meeting{}},
+				4: {Name: "Friday", Meetings: &[]Meeting{}},
+				5: {Name: "Saturday", Meetings: &[]Meeting{}}},
+		},
+	}
+
+	res, err := collection.UpdateOne(context.Background(), filter, emptySchedule)
+	if err != nil {
+		return ctx.Status(500).SendString(err.Error())
+	}
+	if res.ModifiedCount <= 1 {
+		return ctx.Status(500).SendString("Could not flush Schedule")
+	}
+
+	return ctx.SendStatus(200)
 }
