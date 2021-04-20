@@ -257,6 +257,13 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 	return ctx.SendStatus(200)
 }
 
+// FlushSchedule godoc
+// @Summary Deletes all Meetings of a User
+// @Description Clear the Users Zoom Schedule
+// @Success 200
+// @Failure 403	{object} HTTPError
+// @Failure 500 {object} HTTPError
+// @Router /api/meeting/flushSchedule [delete]
 func FlushSchedule(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)
