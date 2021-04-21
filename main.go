@@ -37,7 +37,7 @@ func init() {
 // @host zoom.icetoast.cloud
 // @BasePath /
 func main() {
-	app := fiber.New(fiber.Config{DisableKeepalive: true, Prefork: true})
+	app := fiber.New(fiber.Config{DisableKeepalive: true})
 
 	goth.UseProviders(
 		google.New(os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_SECRET"), Host+"/api/auth/google/callback", "profile", "email"),
