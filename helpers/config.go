@@ -1,8 +1,8 @@
-package db
+package helpers
 
 import "github.com/gofiber/fiber/v2"
 
-type Config struct {
+type CorsConfig struct {
 	// Next defines a function to skip this middleware when returned true.
 	//
 	// Optional. Default: nil
@@ -46,7 +46,7 @@ type Config struct {
 	MaxAge int
 }
 
-var ConfigDefault = Config{
+var CorsConfigDefault = CorsConfig{
 	Next:             nil,
 	AllowOrigins:     "*",
 	AllowMethods:     "GET,POST,PUT,DELETE",
