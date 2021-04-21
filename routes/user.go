@@ -151,8 +151,8 @@ func Logout(ctx *fiber.Ctx) error {
 	}
 
 	session.Destroy()
-
-	return ctx.Redirect(webAppUrl)
+	ctx.Redirect(webAppUrl)
+	return nil
 }
 
 // GetUserData godoc
@@ -211,6 +211,7 @@ func GetUserData(ctx *fiber.Ctx) error {
 	}
 
 	response, _ := json.Marshal(userdata)
-	return ctx.Send(response)
+	ctx.Send(response)
+	return nil
 
 }
