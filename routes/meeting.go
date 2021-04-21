@@ -50,8 +50,7 @@ func GetMeetings(ctx *fiber.Ctx) error {
 	}
 
 	json, _ := json.Marshal(result.Days)
-	ctx.Send(json)
-	return nil
+	return ctx.Send(json)
 
 }
 
@@ -122,8 +121,7 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	}
 
 	response, _ := json.Marshal(meeting)
-	ctx.Send(response)
-	return nil
+	return ctx.Send(response)
 }
 
 // UpdateMeeting godoc
@@ -197,8 +195,8 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	}
 
 	response, _ := json.Marshal(meeting)
-	ctx.Send(response)
-	return nil
+
+	return ctx.Send(response)
 }
 
 // DeleteMeeting godoc
@@ -255,8 +253,8 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 	if res.ModifiedCount < 1 {
 		return ctx.Status(500).SendString("Could not delete Meeting")
 	}
-	ctx.SendStatus(200)
-	return nil
+
+	return ctx.SendStatus(200)
 }
 
 // FlushSchedule godoc
@@ -301,6 +299,6 @@ func FlushSchedule(ctx *fiber.Ctx) error {
 	if res.ModifiedCount < 1 {
 		return ctx.Status(500).SendString("Could not flush Schedule")
 	}
-	ctx.SendStatus(200)
-	return nil
+
+	return ctx.SendStatus(200)
 }

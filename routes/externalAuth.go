@@ -41,8 +41,8 @@ func ProviderCallback(ctx *fiber.Ctx) error {
 	}
 
 	GetSession(ctx, externalUser)
-	ctx.Redirect(webAppUrl)
-	return nil
+
+	return ctx.Redirect(webAppUrl)
 }
 
 func GetExternalUser(externaluserID string) (*ExternalAuthUser, error) {
