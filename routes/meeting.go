@@ -45,6 +45,8 @@ func GetMeetings(ctx *fiber.Ctx) error {
 		}
 	}
 
+	db.CloseMongoDbConnection(collection)
+
 	if result.Days == nil {
 		return ctx.SendString("This user has no meetings")
 	}
@@ -112,6 +114,8 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	if res.ModifiedCount < 1 {
 		return ctx.Status(500).SendString("Could not create Meeting")
 	}
+
+	db.CloseMongoDbConnection(collection)
 
 	meeting := Meeting{
 		Id:       meetingObjId,
@@ -186,6 +190,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	if res.ModifiedCount < 1 {
 		return ctx.Status(500).SendString("Could not update Meeting")
 	}
+	db.CloseMongoDbConnection(collection)
 
 	meeting := Meeting{
 		Id:       meetingObjId,
@@ -253,6 +258,7 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 	if res.ModifiedCount < 1 {
 		return ctx.Status(500).SendString("Could not delete Meeting")
 	}
+	db.CloseMongoDbConnection(collection)
 
 	return ctx.SendStatus(200)
 }
@@ -299,6 +305,7 @@ func FlushSchedule(ctx *fiber.Ctx) error {
 	if res.ModifiedCount < 1 {
 		return ctx.Status(500).SendString("Could not flush Schedule")
 	}
+	db.CloseMongoDbConnection(collection)
 
 	return ctx.SendStatus(200)
 }

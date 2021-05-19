@@ -43,6 +43,7 @@ func CreateUser(ctx *fiber.Ctx, user goth.User) (*ExternalAuthUser, error) {
 	if err != nil {
 		return nil, err
 	}
+	db.CloseMongoDbConnection(collection)
 
 	response, _ := json.Marshal(res)
 
@@ -190,6 +191,7 @@ func GetUserData(ctx *fiber.Ctx) error {
 			return ctx.Status(500).SendString("User not found")
 		}
 	}
+	db.CloseMongoDbConnection(userCollection)
 	fmt.Println("here1", internalUser)
 
 	var externalAuthUser *ExternalAuthUser
@@ -200,6 +202,8 @@ func GetUserData(ctx *fiber.Ctx) error {
 			return ctx.Status(500).SendString("User not found")
 		}
 	}
+	db.CloseMongoDbConnection(externalAuthCollection)
+
 	fmt.Println("here2", externalAuthUser)
 
 	userdata := userData{

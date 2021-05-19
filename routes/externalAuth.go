@@ -59,6 +59,7 @@ func GetExternalUser(externaluserID string) (*ExternalAuthUser, error) {
 			return nil, err
 		}
 	}
+	db.CloseMongoDbConnection(collection)
 
 	return result, nil
 }
@@ -73,6 +74,7 @@ func DeleteExternalUser(internalUserId string) error {
 	if err != nil {
 		return err
 	}
+	db.CloseMongoDbConnection(collection)
 
 	return nil
 }

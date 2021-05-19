@@ -33,6 +33,7 @@ func CreateInternalUser(username string, email string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	db.CloseMongoDbConnection(collection)
 
 	internalUserId, _ := res.InsertedID.(primitive.ObjectID)
 	internalUserIdString := internalUserId.Hex()
@@ -52,6 +53,7 @@ func DeleteInternalUser(internalUserId string) error {
 	if err != nil {
 		return err
 	}
+	db.CloseMongoDbConnection(collection)
 
 	return nil
 }

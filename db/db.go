@@ -41,8 +41,11 @@ func GetMongoDbCollection(DbName string, CollectionName string) (*mongo.Collecti
 	}
 
 	collection := client.Database(DbName).Collection(CollectionName)
-
 	return collection, nil
+}
+
+func CloseMongoDbConnection(collection *mongo.Collection) {
+	collection.Database().Client().Disconnect(context.TODO())
 }
 
 func GetStore() *session.Store {
