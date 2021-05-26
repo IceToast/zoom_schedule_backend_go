@@ -16,15 +16,10 @@ const (
 	webAppUrl              = "https://zoom.icetoast.cloud"
 )
 
-// ProviderCallback godoc
-// @Summary Handles the OAuth2 authentication callback for a certain goth provider.
-// @Description Parses the Fiber context to receive the user's ID and creates the user if it does not exist yet.
-// @Accept json
-// @Produce json
-// @Success 200
-// @Param provider path string true "Google, Discord"
-// @Failure 500 {object} HTTPError
-// @Router /api/{provider}/callback [get]
+// OAuth godoc
+// @Summary This is not a request Route! You must redirect to this route.
+// @Description Redirects to OAuth provider to start Auth - leads to OAuth callback and sets session cookie - Currently Supported: Discord, Google, Github
+// @Router /api/auth/{provider} [get]
 func ProviderCallback(ctx *fiber.Ctx) error {
 	user, err := goth_fiber.CompleteUserAuth(ctx)
 	if err != nil {
