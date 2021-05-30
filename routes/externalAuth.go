@@ -20,7 +20,10 @@ const (
 
 // OAuth godoc
 // @Summary This is not a request Route! You must redirect to this route.
-// @Description Redirects to OAuth provider to start Auth - leads to OAuth callback and sets session cookie - Currently Supported: Discord, Google, Github
+// @Description Redirects to OAuth provider to start Auth
+// @Description Redirects to OAuth callback and sets session cookie
+// @Description Providers currently Supported: discord, google, github
+// @Param redirectUrl path string true "Url api redirects after authentication"
 // @Router /api/auth/{provider} [get]
 func ProviderCallback(ctx *fiber.Ctx) error {
 	redirectUrl, err := goth_fiber.GetFromSession("redirectUrl", ctx)
