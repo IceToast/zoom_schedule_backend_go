@@ -45,7 +45,7 @@ type Meeting struct {
 }
 
 type updateMeetingData struct {
-	Id        string `json:"id,omitempty validate:"required"`
+	Id        string `json:"id,omitempty" validate:"required"`
 	Name      string `json:"name"`
 	Link      string `json:"link"`
 	Password  string `json:"password"`
