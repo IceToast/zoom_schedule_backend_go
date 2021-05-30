@@ -53,7 +53,7 @@ func main() {
 	// OAuth2-Endpunkte
 	auth := api.Group("/auth")
 
-	auth.Get("/:provider", goth_fiber.BeginAuthHandler)
+	auth.Get("/:provider", routes.BeginAuthHandler)
 	auth.Get("/:provider/callback", routes.ProviderCallback)
 	auth.Get("/logout/:provider", func(ctx *fiber.Ctx) error {
 		if err := goth_fiber.Logout(ctx); err != nil {

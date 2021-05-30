@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"zoom_schedule_backend_go/db"
@@ -105,7 +106,7 @@ func DeleteUser(ctx *fiber.Ctx) error {
 
 }
 
-func GetSession(ctx *fiber.Ctx, externalUser *ExternalAuthUser) (string, error) {
+func GetSession(ctx *fiber.Ctx, externalUser *ExternalAuthUser, baseUrl string) (string, error) {
 	store := db.GetStore()
 	session, err := store.Get(ctx)
 	if err != nil {
@@ -114,6 +115,7 @@ func GetSession(ctx *fiber.Ctx, externalUser *ExternalAuthUser) (string, error) 
 
 	// Set Session Data as key/value-pair
 	session.Set("internalUserId", externalUser.InternalUserId)
+	session.Set("baseUrl", baseUrl)
 
 	userId := session.Get("internalUserId").(string)
 
@@ -151,9 +153,15 @@ func Logout(ctx *fiber.Ctx) error {
 		return ctx.Status(500).SendString(err.Error())
 	}
 
+	redirectUrl, ok := session.Get("baseUrl").(string)
+	if !ok || redirectUrl == "" {
+		session.Destroy()
+		return errors.New("invalid Cookie or session expired")
+	}
+
 	session.Destroy()
 
-	return ctx.Redirect(webAppUrl)
+	return ctx.Redirect(redirectUrl)
 }
 
 // GetUserData godoc
