@@ -1,6 +1,8 @@
 package helpers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+)
 
 type CorsConfig struct {
 	// Next defines a function to skip this middleware when returned true.

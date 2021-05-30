@@ -59,8 +59,10 @@ func GetStore() *session.Store {
 
 	// Storage: MongoDB, Expiration: 30days
 	store := session.New(session.Config{
-		Storage:    storage,
-		Expiration: 720 * time.Hour,
+		Storage:        storage,
+		Expiration:     720 * time.Hour,
+		CookieSecure:   true,
+		CookieSameSite: "None",
 	})
 
 	return store
