@@ -45,27 +45,27 @@ type Meeting struct {
 }
 
 type updateMeetingData struct {
-	Id        string `json:"id,omitempty"`
+	Id        string `json:"id,omitempty validate:"required"`
 	Name      string `json:"name"`
 	Link      string `json:"link"`
 	Password  string `json:"password"`
-	Day       string `json:"day"`
+	Day       string `json:"day" validate:"required"`
 	StartTime string `json:"startTime,omitempty"`
 	EndTime   string `json:"endTime,omitempty"`
 }
 
 type createMeetingData struct {
-	Name      string `json:"name"`
+	Name      string `json:"name" validate:"required"`
 	Link      string `json:"link"`
 	Password  string `json:"password`
-	Day       string `json:"day"`
+	Day       string `json:"day" validate:"required"`
 	StartTime string `json:"startTime,omitempty"`
 	EndTime   string `json:"endTime,omitempty"`
 }
 
 type deleteMeetingData struct {
-	Id  string `json:"id"`
-	Day string `json:"day"`
+	Id  string `json:"id" validate:"required"`
+	Day string `json:"day" validate:"required"`
 }
 
 type userData struct {
