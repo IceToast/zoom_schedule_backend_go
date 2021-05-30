@@ -96,10 +96,12 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	update := bson.M{
 		"$push": bson.M{
 			"days.$.meetings": Meeting{
-				Id:       meetingObjId,
-				Name:     meetingData.Name,
-				Link:     meetingData.Link,
-				Password: meetingData.Password,
+				Id:        meetingObjId,
+				Name:      meetingData.Name,
+				Link:      meetingData.Link,
+				Password:  meetingData.Password,
+				StartTime: meetingData.StartTime,
+				EndTime:   meetingData.EndTime,
 			},
 		},
 	}
@@ -118,10 +120,11 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	db.CloseMongoDbConnection(collection)
 
 	meeting := Meeting{
-		Id:       meetingObjId,
-		Name:     meetingData.Name,
-		Link:     meetingData.Link,
-		Password: meetingData.Password,
+		Id:        meetingObjId,
+		Name:      meetingData.Name,
+		Link:      meetingData.Link,
+		Password:  meetingData.Password,
+		StartTime: meetingData.StartTime,
 	}
 
 	response, _ := json.Marshal(meeting)
@@ -168,10 +171,12 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	update := bson.M{
 		"$set": bson.M{
 			"days.$.meetings.$[elem]": Meeting{
-				Id:       meetingObjId,
-				Name:     meetingData.Name,
-				Link:     meetingData.Link,
-				Password: meetingData.Password,
+				Id:        meetingObjId,
+				Name:      meetingData.Name,
+				Link:      meetingData.Link,
+				Password:  meetingData.Password,
+				StartTime: meetingData.StartTime,
+				EndTime:   meetingData.EndTime,
 			},
 		},
 	}
@@ -193,10 +198,12 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	db.CloseMongoDbConnection(collection)
 
 	meeting := Meeting{
-		Id:       meetingObjId,
-		Name:     meetingData.Name,
-		Link:     meetingData.Link,
-		Password: meetingData.Password,
+		Id:        meetingObjId,
+		Name:      meetingData.Name,
+		Link:      meetingData.Link,
+		Password:  meetingData.Password,
+		StartTime: meetingData.StartTime,
+		EndTime:   meetingData.EndTime,
 	}
 
 	response, _ := json.Marshal(meeting)

@@ -36,25 +36,31 @@ type Day struct {
 }
 
 type Meeting struct {
-	Id       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name     string             `json:"name,omitempty" bson":name,omitempty"`
-	Link     string             `json:"link,omitempty" bson":link,omitempty`
-	Password string             `json:"password,omitempty" bson:"password,omitempty"`
+	Id        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name      string             `json:"name,omitempty" bson":name,omitempty"`
+	Link      string             `json:"link,omitempty" bson":link,omitempty`
+	Password  string             `json:"password,omitempty" bson:"password,omitempty"`
+	StartTime string             `json:"startTime,omitempty" bson:"startTime,omitempty"`
+	EndTime   string             `json:"endTime,omitempty" bson:"endTime,omitempty"`
 }
 
 type updateMeetingData struct {
-	Id       string `json:"id,omitempty"`
-	Name     string `json:"name"`
-	Link     string `json:"link"`
-	Password string `json:"password"`
-	Day      string `json:"day"`
+	Id        string `json:"id,omitempty"`
+	Name      string `json:"name"`
+	Link      string `json:"link"`
+	Password  string `json:"password"`
+	Day       string `json:"day"`
+	StartTime string `json:"startTime,omitempty"`
+	EndTime   string `json:"endTime,omitempty"`
 }
 
 type createMeetingData struct {
-	Name     string `json:"name"`
-	Link     string `json:"link"`
-	Password string `json:"password`
-	Day      string `json:"day"`
+	Name      string `json:"name"`
+	Link      string `json:"link"`
+	Password  string `json:"password`
+	Day       string `json:"day"`
+	StartTime string `json:"startTime,omitempty"`
+	EndTime   string `json:"endTime,omitempty"`
 }
 
 type deleteMeetingData struct {
