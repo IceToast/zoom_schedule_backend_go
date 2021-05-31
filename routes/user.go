@@ -137,7 +137,7 @@ func Logout(ctx *fiber.Ctx) error {
 	}
 	session.Destroy()
 
-	return ctx.Redirect(string(ctx.Request().Host()))
+	return ctx.Redirect("https://" + string(ctx.Request().Host()))
 }
 
 // GetUserData godoc
