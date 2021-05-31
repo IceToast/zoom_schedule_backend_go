@@ -26,12 +26,12 @@ func GetMeetings(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
-		return ctx.Status(403).SendString(err.Error())
+		return ctx.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
-		return ctx.Status(500).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
 	objID, _ := primitive.ObjectIDFromHex(internalUserId)
@@ -41,7 +41,7 @@ func GetMeetings(ctx *fiber.Ctx) error {
 	if err != nil {
 		// ErrNoDocuments means that the filter did not match any documents in the collection
 		if err == mongo.ErrNoDocuments {
-			return ctx.Status(500).SendString("User not found")
+			return ctx.Status(fiber.StatusInternalServerError).SendString("User not found")
 		}
 	}
 
@@ -52,7 +52,7 @@ func GetMeetings(ctx *fiber.Ctx) error {
 	}
 
 	json, _ := json.Marshal(result.Days)
-	return ctx.Send(json)
+	return ctx.Status(fiber.StatusOK).Send(json)
 
 }
 
@@ -70,12 +70,12 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
-		return ctx.Status(403).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
-		return ctx.Status(500).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 
 	}
 
@@ -85,7 +85,7 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 
 	//Do not update if request Data is invalid -> no Day to select or no meeting properties
 	if meetingData.Name == "" && meetingData.Link == "" && meetingData.Password == "" || meetingData.Day == "" {
-		return ctx.Status(400).SendString("No valid Meeting")
+		return ctx.Status(fiber.StatusBadRequest).SendString("No valid Meeting")
 	}
 
 	//Convert Ids of type string to type "ObjectIds"
@@ -111,10 +111,10 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 
 	res, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		return ctx.Status(500).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	if res.ModifiedCount < 1 {
-		return ctx.Status(500).SendString("Could not create Meeting")
+		return ctx.Status(fiber.StatusInternalServerError).SendString("Could not create Meeting")
 	}
 
 	db.CloseMongoDbConnection(collection)
@@ -128,7 +128,7 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	}
 
 	response, _ := json.Marshal(meeting)
-	return ctx.Send(response)
+	return ctx.Status(fiber.StatusOK).Send(response)
 }
 
 // UpdateMeeting godoc
@@ -145,12 +145,12 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
-		return ctx.Status(403).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
-		return ctx.Status(500).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 
 	}
 
@@ -160,7 +160,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 
 	//Do not update if request Data is invalid -> no Day to select or no meeting properties
 	if meetingData.Name == "" && meetingData.Link == "" && meetingData.Password == "" || meetingData.Day == "" {
-		return ctx.Status(400).SendString("No valid Meeting")
+		return ctx.Status(fiber.StatusBadRequest).SendString("No valid Meeting")
 	}
 
 	//Convert Ids of type string to type "ObjectIds"
@@ -190,10 +190,10 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 
 	res, err := collection.UpdateOne(context.Background(), filter, update, filterArray)
 	if err != nil {
-		return ctx.Status(500).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	if res.ModifiedCount < 1 {
-		return ctx.Status(500).SendString("Could not update Meeting")
+		return ctx.Status(fiber.StatusInternalServerError).SendString("Could not update Meeting")
 	}
 	db.CloseMongoDbConnection(collection)
 
@@ -208,7 +208,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 
 	response, _ := json.Marshal(meeting)
 
-	return ctx.Send(response)
+	return ctx.Status(fiber.StatusOK).Send(response)
 }
 
 // DeleteMeeting godoc
@@ -225,12 +225,12 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
-		return ctx.Status(403).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
-		return ctx.Status(500).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
 	var meetingData deleteMeetingData
@@ -239,7 +239,7 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 
 	//Do not update if request Data is invalid -> no Day to select or no meeting properties
 	if meetingData.Id == "" || meetingData.Day == "" {
-		return ctx.Status(400).SendString("No valid Meeting")
+		return ctx.Status(fiber.StatusBadRequest).SendString("No valid Meeting")
 	}
 
 	//Convert Ids of type string to type "ObjectIds"
@@ -260,14 +260,14 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 	//Filter meetings Array to update correct meeting
 	res, err := collection.UpdateOne(context.Background(), filter, delete)
 	if err != nil {
-		return ctx.Status(500).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	if res.ModifiedCount < 1 {
-		return ctx.Status(500).SendString("Could not delete Meeting")
+		return ctx.Status(fiber.StatusInternalServerError).SendString("Could not delete Meeting")
 	}
 	db.CloseMongoDbConnection(collection)
 
-	return ctx.SendStatus(200)
+	return ctx.SendStatus(fiber.StatusOK)
 }
 
 // FlushSchedule godoc
@@ -281,12 +281,12 @@ func FlushSchedule(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
-		return ctx.Status(403).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
-		return ctx.Status(500).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
 	userObjId, _ := primitive.ObjectIDFromHex(internalUserId)
@@ -307,12 +307,12 @@ func FlushSchedule(ctx *fiber.Ctx) error {
 
 	res, err := collection.UpdateOne(context.Background(), filter, emptySchedule)
 	if err != nil {
-		return ctx.Status(500).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	if res.ModifiedCount < 1 {
-		return ctx.Status(500).SendString("Could not flush Schedule")
+		return ctx.Status(fiber.StatusInternalServerError).SendString("Could not flush Schedule")
 	}
 	db.CloseMongoDbConnection(collection)
 
-	return ctx.SendStatus(200)
+	return ctx.SendStatus(fiber.StatusOK)
 }
