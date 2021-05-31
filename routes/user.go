@@ -117,7 +117,7 @@ func DeleteSession(sessionId primitive.ObjectID) error {
 
 // Logout godoc
 // @Summary Deletes user session, expires session_id cookie and redirects to startpage
-// @Description Resolves a userId via a given session cookie.
+// @Description Destroys the session of a user by the cookie, also deletes cookie
 // @Produce json
 // @Success 200
 // @Failure 403 {object} HTTPError
@@ -137,7 +137,7 @@ func Logout(ctx *fiber.Ctx) error {
 	}
 	session.Destroy()
 
-	return ctx.Redirect("https://" + string(ctx.Request().Host()))
+	return ctx.Redirect(string(ctx.Request().Header.Referer()))
 }
 
 // GetUserData godoc
