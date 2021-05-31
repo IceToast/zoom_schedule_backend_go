@@ -64,7 +64,7 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		return ctx.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
 
 	collection := db.DbInstance.DB.Collection(collectionUser)
@@ -143,7 +143,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		return ctx.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
 
 	collection := db.DbInstance.DB.Collection(collectionUser)
@@ -218,7 +218,7 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		return ctx.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
 
 	collection := db.DbInstance.DB.Collection(collectionUser)
@@ -270,7 +270,7 @@ func FlushSchedule(ctx *fiber.Ctx) error {
 	//Verify Cookie
 	internalUserId, err := helpers.VerifyCookie(ctx)
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		return ctx.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
 
 	collection := db.DbInstance.DB.Collection(collectionUser)
