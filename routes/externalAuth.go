@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"errors"
 	"net/http"
 	"zoom_schedule_backend_go/db"
 
@@ -23,7 +22,6 @@ const (
 // @Description Redirects to OAuth provider to start Auth
 // @Description Redirects to OAuth callback and sets session cookie
 // @Description Providers currently Supported: discord, google, github
-// @Param redirectUrl path string true "Url api redirects after authentication"
 // @Router /api/auth/{provider} [get]
 func ProviderCallback(ctx *fiber.Ctx) error {
 	redirectUrl, err := goth_fiber.GetFromSession("redirectUrl", ctx)
@@ -100,10 +98,7 @@ func GetAuthURL(ctx *fiber.Ctx) (string, error) {
 		return "", err
 	}
 
-	redirectUrl, err := GetRedirectUrl(ctx)
-	if err != nil {
-		return "", err
-	}
+	redirectUrl := GetRedirectUrl(ctx)
 
 	sess, err := provider.BeginAuth(goth_fiber.SetState(ctx))
 	if err != nil {
@@ -128,15 +123,6 @@ func GetAuthURL(ctx *fiber.Ctx) (string, error) {
 	return url, err
 }
 
-func GetRedirectUrl(ctx *fiber.Ctx) (string, error) {
-	// try to get it from the url param "redirectUrl"
-	if p := ctx.Query("redirectUrl"); p != "" {
-		return p, nil
-	}
-	// try to get it from the url param ":redirectUrl"
-	if p := ctx.Params("redirectUrl"); p != "" {
-		return p, nil
-	}
-
-	return "", errors.New("you must provide a redirectUrl")
+func GetRedirectUrl(ctx *fiber.Ctx) string {
+	return string(ctx.Request().Header.Referer())
 }
