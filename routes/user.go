@@ -19,10 +19,7 @@ import (
 const collectionSession = "session"
 
 func CreateUser(ctx *fiber.Ctx, user goth.User) (*ExternalAuthUser, error) {
-	collection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
-	if err != nil {
-		return nil, err
-	}
+	collection := db.DbInstance.DB.Collection(collectionExternalAuth)
 
 	internalUserId, err := CreateInternalUser(user.Name, user.Email)
 	if err != nil {
@@ -44,7 +41,6 @@ func CreateUser(ctx *fiber.Ctx, user goth.User) (*ExternalAuthUser, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.CloseMongoDbConnection(collection)
 
 	response, _ := json.Marshal(res)
 
@@ -60,10 +56,7 @@ func DeleteUser(ctx *fiber.Ctx) error {
 	//	return ctx.Status(403).SendString(err.Error())
 	//}
 
-	collectionSession, err := db.GetMongoDbCollection(dbName, collectionSession)
-	if err != nil {
-		return ctx.SendStatus(500)
-	}
+	collectionSession := db.DbInstance.DB.Collection(collectionSession)
 
 	sessions, err := collectionSession.Find(context.TODO(), bson.M{})
 	if err != nil {
@@ -92,15 +85,6 @@ func DeleteUser(ctx *fiber.Ctx) error {
 		fmt.Println(cursor)
 	}
 	defer sessions.Close(context.TODO())
-
-	//deleteInternalUserErr := DeleteInternalUser(internalUserId)
-	//if deleteInternalUserErr != nil {
-	//	return ctx.SendStatus(500)
-	//}
-	//deleteExternalUserErr := DeleteExternalUser(internalUserId)
-	//if deleteExternalUserErr != nil {
-	//	return ctx.SendStatus(500)
-	//}
 
 	return ctx.SendStatus(200)
 
@@ -179,15 +163,9 @@ func GetUserData(ctx *fiber.Ctx) error {
 		return ctx.Status(403).SendString(err.Error())
 	}
 
-	userCollection, err := db.GetMongoDbCollection(dbName, collectionUser)
-	if err != nil {
-		return ctx.SendStatus(500)
-	}
+	userCollection := db.DbInstance.DB.Collection(collectionUser)
 
-	externalAuthCollection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
-	if err != nil {
-		return ctx.SendStatus(500)
-	}
+	externalAuthCollection := db.DbInstance.DB.Collection(collectionExternalAuth)
 
 	internalUserObjId, _ := primitive.ObjectIDFromHex(internalUserId)
 
@@ -199,7 +177,6 @@ func GetUserData(ctx *fiber.Ctx) error {
 			return ctx.Status(500).SendString("User not found")
 		}
 	}
-	db.CloseMongoDbConnection(userCollection)
 	fmt.Println("here1", internalUser)
 
 	var externalAuthUser *ExternalAuthUser
@@ -210,7 +187,6 @@ func GetUserData(ctx *fiber.Ctx) error {
 			return ctx.Status(500).SendString("User not found")
 		}
 	}
-	db.CloseMongoDbConnection(externalAuthCollection)
 
 	fmt.Println("here2", externalAuthUser)
 

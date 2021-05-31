@@ -11,10 +11,7 @@ import (
 const collectionUser = "user"
 
 func CreateInternalUser(username string, email string) (string, error) {
-	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
-	if err != nil {
-		return "", err
-	}
+	collection := db.DbInstance.DB.Collection(collectionUser)
 
 	internalUser := &User{
 		UserName: username,
@@ -42,14 +39,11 @@ func CreateInternalUser(username string, email string) (string, error) {
 }
 
 func DeleteInternalUser(internalUserId string) error {
-	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
-	if err != nil {
-		return err
-	}
+	collection := db.DbInstance.DB.Collection(collectionUser)
 
 	userObjId, _ := primitive.ObjectIDFromHex(internalUserId)
 
-	_, err = collection.DeleteOne(context.Background(), bson.M{"_id": userObjId})
+	_, err := collection.DeleteOne(context.Background(), bson.M{"_id": userObjId})
 	if err != nil {
 		return err
 	}

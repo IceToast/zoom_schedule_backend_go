@@ -50,35 +50,27 @@ func ProviderCallback(ctx *fiber.Ctx) error {
 }
 
 func GetExternalUser(externaluserID string) (*ExternalAuthUser, error) {
-	collection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
-	if err != nil {
-		return nil, err
-	}
+	collection := db.DbInstance.DB.Collection(collectionExternalAuth)
 
 	var result *ExternalAuthUser
-	err = collection.FindOne(context.TODO(), bson.M{"externaluserid": externaluserID}).Decode(&result)
+	err := collection.FindOne(context.TODO(), bson.M{"externaluserid": externaluserID}).Decode(&result)
 	if err != nil {
 		// ErrNoDocuments means that the filter did not match any documents in the collection
 		if err == mongo.ErrNoDocuments {
 			return nil, err
 		}
 	}
-	db.CloseMongoDbConnection(collection)
 
 	return result, nil
 }
 
 func DeleteExternalUser(internalUserId string) error {
-	collection, err := db.GetMongoDbCollection(dbName, collectionExternalAuth)
-	if err != nil {
-		return err
-	}
+	collection := db.DbInstance.DB.Collection(collectionExternalAuth)
 
-	_, err = collection.DeleteOne(context.Background(), bson.M{"internaluserid": internalUserId})
+	_, err := collection.DeleteOne(context.Background(), bson.M{"internaluserid": internalUserId})
 	if err != nil {
 		return err
 	}
-	db.CloseMongoDbConnection(collection)
 
 	return nil
 }

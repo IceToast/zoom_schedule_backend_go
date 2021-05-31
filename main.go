@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"zoom_schedule_backend_go/db"
 	"zoom_schedule_backend_go/helpers"
 	"zoom_schedule_backend_go/routes"
 
@@ -44,6 +45,9 @@ func main() {
 		discord.New(os.Getenv("DISCORD_CLIENT_ID"), os.Getenv("DISCORD_SECRET"), Host+"/api/auth/discord/callback", discord.ScopeIdentify, discord.ScopeEmail),
 		github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_SECRET"), Host+"/api/auth/github/callback"),
 	)
+
+	// config db
+	db.ConnectDB()
 
 	app.Use(cors.New(cors.Config(helpers.CorsConfigDefault)))
 	app.Static("/docs", "./docs") // Serve static docs/ folder

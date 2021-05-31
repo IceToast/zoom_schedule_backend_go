@@ -29,11 +29,9 @@ func GetMeetings(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
+	fmt.Println("Here")
 
-	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
+	collection := db.DbInstance.DB.Collection(collectionUser)
 
 	objID, _ := primitive.ObjectIDFromHex(internalUserId)
 
@@ -45,8 +43,6 @@ func GetMeetings(ctx *fiber.Ctx) error {
 			return ctx.Status(fiber.StatusInternalServerError).SendString("User not found")
 		}
 	}
-
-	defer db.CloseMongoDbConnection(collection)
 
 	if result.Days == nil {
 		return ctx.SendString("This user has no meetings")
@@ -74,21 +70,21 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
+	collection := db.DbInstance.DB.Collection(collectionUser)
 
 	var meetingData []createMeetingData
 	//Convert HTTP POST Data to Struct
 	json.Unmarshal(ctx.Body(), &meetingData)
+	if meetingData == nil {
+		return ctx.Status(fiber.StatusBadRequest).SendString("No valid Meetings")
+	}
 
 	var meetingResponse []Meeting
-	fmt.Println(meetingData)
+
 	for _, meeting := range meetingData {
 		//Do not update if request Data is invalid -> no Day to select or no meeting properties
 		if meeting.Name == "" && meeting.Link == "" && meeting.Password == "" || meeting.Day == "" {
-			return ctx.Status(fiber.StatusBadRequest).SendString("No valid Meeting")
+			continue
 		}
 
 		//Convert Ids of type string to type "ObjectIds"
@@ -128,7 +124,9 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 		})
 	}
 
-	defer db.CloseMongoDbConnection(collection)
+	if meetingResponse == nil {
+		return ctx.Status(fiber.StatusBadRequest).SendString("No valid Meetings")
+	}
 
 	response, _ := json.Marshal(meetingResponse)
 	return ctx.Status(fiber.StatusOK).Send(response)
@@ -151,10 +149,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
+	collection := db.DbInstance.DB.Collection(collectionUser)
 
 	var meetingData updateMeetingData
 	//Convert HTTP POST Data to Struct
@@ -197,7 +192,6 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	if res.ModifiedCount < 1 {
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Could not update Meeting")
 	}
-	defer db.CloseMongoDbConnection(collection)
 
 	meeting := Meeting{
 		Id:        meetingObjId,
@@ -230,10 +224,7 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
+	collection := db.DbInstance.DB.Collection(collectionUser)
 
 	var meetingData deleteMeetingData
 	//Convert HTTP POST Data to Struct
@@ -267,7 +258,6 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 	if res.ModifiedCount < 1 {
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Could not delete Meeting")
 	}
-	defer db.CloseMongoDbConnection(collection)
 
 	return ctx.SendStatus(fiber.StatusOK)
 }
@@ -286,10 +276,7 @@ func FlushSchedule(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
+	collection := db.DbInstance.DB.Collection(collectionUser)
 
 	userObjId, _ := primitive.ObjectIDFromHex(internalUserId)
 	filter := bson.D{{"_id", userObjId}}
@@ -314,7 +301,6 @@ func FlushSchedule(ctx *fiber.Ctx) error {
 	if res.ModifiedCount < 1 {
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Could not flush Schedule")
 	}
-	defer db.CloseMongoDbConnection(collection)
 
 	return ctx.SendStatus(fiber.StatusOK)
 }
