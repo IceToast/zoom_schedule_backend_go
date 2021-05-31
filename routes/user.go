@@ -90,8 +90,8 @@ func DeleteUser(ctx *fiber.Ctx) error {
 }
 
 func GetSession(ctx *fiber.Ctx, externalUser *ExternalAuthUser, baseUrl string) (string, error) {
-	store := db.GetStore()
-	session, err := store.Get(ctx)
+
+	session, err := db.SessionStoreInstance.Get(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -130,8 +130,7 @@ func Logout(ctx *fiber.Ctx) error {
 		return ctx.Status(403).SendString(err.Error())
 	}
 
-	store := db.GetStore()
-	session, err := store.Get(ctx)
+	session, err := db.SessionStoreInstance.Get(ctx)
 	if err != nil {
 		return ctx.Status(500).SendString(err.Error())
 	}

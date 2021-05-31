@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"zoom_schedule_backend_go/db"
@@ -46,8 +47,14 @@ func main() {
 		github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_SECRET"), Host+"/api/auth/github/callback"),
 	)
 
-	// config db
 	db.ConnectDB()
+	defer func() {
+		if err := db.DbInstance.Client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+
+	db.ConnectSessionStorage()
 
 	app.Use(cors.New(cors.Config(helpers.CorsConfigDefault)))
 	app.Static("/docs", "./docs") // Serve static docs/ folder

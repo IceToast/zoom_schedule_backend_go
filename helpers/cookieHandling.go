@@ -8,9 +8,7 @@ import (
 )
 
 func VerifyCookie(ctx *fiber.Ctx) (string, error) {
-
-	store := db.GetStore()
-	session, err := store.Get(ctx)
+	session, err := db.SessionStoreInstance.Get(ctx)
 	if err != nil {
 		return "", err
 	}
