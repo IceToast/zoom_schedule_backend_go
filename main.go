@@ -37,7 +37,7 @@ func init() {
 // @host zoom.icetoast.cloud/
 // @BasePath /api/
 func main() {
-	app := fiber.New(fiber.Config{DisableKeepalive: true})
+	app := fiber.New(fiber.Config{DisableKeepalive: true, ReduceMemoryUsage: true})
 
 	goth.UseProviders(
 		google.New(os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_SECRET"), Host+"/api/auth/google/callback", "profile", "email"),
@@ -57,7 +57,7 @@ func main() {
 	auth.Get("/:provider/callback", routes.ProviderCallback)
 	auth.Get("/logout/:provider", func(ctx *fiber.Ctx) error {
 		if err := goth_fiber.Logout(ctx); err != nil {
-			return ctx.SendString(err.Error())
+			return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
 
 		ctx.Redirect("/")

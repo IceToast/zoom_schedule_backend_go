@@ -3,6 +3,7 @@ package routes
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"zoom_schedule_backend_go/db"
 	"zoom_schedule_backend_go/helpers"
 
@@ -45,7 +46,7 @@ func GetMeetings(ctx *fiber.Ctx) error {
 		}
 	}
 
-	db.CloseMongoDbConnection(collection)
+	defer db.CloseMongoDbConnection(collection)
 
 	if result.Days == nil {
 		return ctx.SendString("This user has no meetings")
@@ -59,10 +60,10 @@ func GetMeetings(ctx *fiber.Ctx) error {
 // CreateMeeting godoc
 // @Summary Creates a meeting in the database.
 // @Description Requires a JSON encoded Meeting object in the body.
-// @Param request body createMeetingData true "Meeting Data required to create a Meeting"
+// @Param request body []createMeetingData true "Meeting Data required to create a Meeting"
 // @Accept json
 // @Produce json
-// @Success 200 {object} Meeting
+// @Success 200 {object} []Meeting
 // @Failure 403	{object} HTTPError
 // @Failure 500 {object} HTTPError
 // @Router /api/meeting [post]
@@ -76,58 +77,60 @@ func CreateMeeting(ctx *fiber.Ctx) error {
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
-
 	}
 
-	var meetingData createMeetingData
+	var meetingData []createMeetingData
 	//Convert HTTP POST Data to Struct
 	json.Unmarshal(ctx.Body(), &meetingData)
 
-	//Do not update if request Data is invalid -> no Day to select or no meeting properties
-	if meetingData.Name == "" && meetingData.Link == "" && meetingData.Password == "" || meetingData.Day == "" {
-		return ctx.Status(fiber.StatusBadRequest).SendString("No valid Meeting")
-	}
+	var meetingResponse []Meeting
+	fmt.Println(meetingData)
+	for _, meeting := range meetingData {
+		//Do not update if request Data is invalid -> no Day to select or no meeting properties
+		if meeting.Name == "" && meeting.Link == "" && meeting.Password == "" || meeting.Day == "" {
+			return ctx.Status(fiber.StatusBadRequest).SendString("No valid Meeting")
+		}
 
-	//Convert Ids of type string to type "ObjectIds"
-	userObjID, _ := primitive.ObjectIDFromHex(internalUserId)
-	meetingObjId := primitive.NewObjectID()
+		//Convert Ids of type string to type "ObjectIds"
+		userObjID, _ := primitive.ObjectIDFromHex(internalUserId)
+		meetingObjId := primitive.NewObjectID()
 
-	//Map request data to meeting update struct
-	update := bson.M{
-		"$push": bson.M{
-			"days.$.meetings": Meeting{
-				Id:        meetingObjId,
-				Name:      meetingData.Name,
-				Link:      meetingData.Link,
-				Password:  meetingData.Password,
-				StartTime: meetingData.StartTime,
-				EndTime:   meetingData.EndTime,
+		//Map request data to meeting update struct
+		update := bson.M{
+			"$push": bson.M{
+				"days.$.meetings": Meeting{
+					Id:        meetingObjId,
+					Name:      meeting.Name,
+					Link:      meeting.Link,
+					Password:  meeting.Password,
+					StartTime: meeting.StartTime,
+					EndTime:   meeting.EndTime,
+				},
 			},
-		},
+		}
+
+		//Filter User and Day by Meeting Data from request
+		filter := bson.M{"_id": userObjID, "days.name": meeting.Day}
+
+		res, err := collection.UpdateOne(context.Background(), filter, update)
+		if err != nil {
+			return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+		if res.ModifiedCount < 1 {
+			return ctx.Status(fiber.StatusInternalServerError).SendString("Could not create Meeting")
+		}
+		meetingResponse = append(meetingResponse, Meeting{
+			Id:        meetingObjId,
+			Name:      meeting.Name,
+			Link:      meeting.Link,
+			Password:  meeting.Password,
+			StartTime: meeting.StartTime,
+		})
 	}
 
-	//Filter User and Day by Meeting Data from request
-	filter := bson.M{"_id": userObjID, "days.name": meetingData.Day}
+	defer db.CloseMongoDbConnection(collection)
 
-	res, err := collection.UpdateOne(context.Background(), filter, update)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
-	if res.ModifiedCount < 1 {
-		return ctx.Status(fiber.StatusInternalServerError).SendString("Could not create Meeting")
-	}
-
-	db.CloseMongoDbConnection(collection)
-
-	meeting := Meeting{
-		Id:        meetingObjId,
-		Name:      meetingData.Name,
-		Link:      meetingData.Link,
-		Password:  meetingData.Password,
-		StartTime: meetingData.StartTime,
-	}
-
-	response, _ := json.Marshal(meeting)
+	response, _ := json.Marshal(meetingResponse)
 	return ctx.Status(fiber.StatusOK).Send(response)
 }
 
@@ -151,7 +154,6 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	collection, err := db.GetMongoDbCollection(dbName, collectionUser)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
-
 	}
 
 	var meetingData updateMeetingData
@@ -195,7 +197,7 @@ func UpdateMeeting(ctx *fiber.Ctx) error {
 	if res.ModifiedCount < 1 {
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Could not update Meeting")
 	}
-	db.CloseMongoDbConnection(collection)
+	defer db.CloseMongoDbConnection(collection)
 
 	meeting := Meeting{
 		Id:        meetingObjId,
@@ -265,7 +267,7 @@ func DeleteMeeting(ctx *fiber.Ctx) error {
 	if res.ModifiedCount < 1 {
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Could not delete Meeting")
 	}
-	db.CloseMongoDbConnection(collection)
+	defer db.CloseMongoDbConnection(collection)
 
 	return ctx.SendStatus(fiber.StatusOK)
 }
@@ -312,7 +314,7 @@ func FlushSchedule(ctx *fiber.Ctx) error {
 	if res.ModifiedCount < 1 {
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Could not flush Schedule")
 	}
-	db.CloseMongoDbConnection(collection)
+	defer db.CloseMongoDbConnection(collection)
 
 	return ctx.SendStatus(fiber.StatusOK)
 }
