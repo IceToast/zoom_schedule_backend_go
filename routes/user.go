@@ -2,7 +2,6 @@ package routes
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"zoom_schedule_backend_go/db"
@@ -136,16 +135,9 @@ func Logout(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(500).SendString(err.Error())
 	}
-
-	redirectUrl, ok := session.Get("baseUrl").(string)
-	if !ok || redirectUrl == "" {
-		session.Destroy()
-		return errors.New("invalid Cookie or session expired")
-	}
-
 	session.Destroy()
 
-	return ctx.Redirect(redirectUrl)
+	return ctx.Redirect(string(ctx.Request().Host()))
 }
 
 // GetUserData godoc
@@ -177,7 +169,6 @@ func GetUserData(ctx *fiber.Ctx) error {
 			return ctx.Status(500).SendString("User not found")
 		}
 	}
-	fmt.Println("here1", internalUser)
 
 	var externalAuthUser *ExternalAuthUser
 	err = externalAuthCollection.FindOne(context.Background(), bson.M{"internaluserid": internalUserId}).Decode(&externalAuthUser)
@@ -187,8 +178,6 @@ func GetUserData(ctx *fiber.Ctx) error {
 			return ctx.Status(500).SendString("User not found")
 		}
 	}
-
-	fmt.Println("here2", externalAuthUser)
 
 	userdata := userData{
 		Id:        internalUserId,

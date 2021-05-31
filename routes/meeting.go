@@ -3,7 +3,6 @@ package routes
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"zoom_schedule_backend_go/db"
 	"zoom_schedule_backend_go/helpers"
 
@@ -29,10 +28,8 @@ func GetMeetings(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
-	fmt.Println("Here")
 
 	collection := db.DbInstance.DB.Collection(collectionUser)
-
 	objID, _ := primitive.ObjectIDFromHex(internalUserId)
 
 	var result *User
