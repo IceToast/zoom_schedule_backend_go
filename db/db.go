@@ -28,7 +28,7 @@ const collectionSessions = "sessions"
 
 // ConnectDB - database connection
 func ConnectDB() {
-	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("CONNECTION_STRING")))
+	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("CONNECTION_STRING")).SetMaxPoolSize(50))
 	if err != nil {
 		log.Fatal(err)
 	}
