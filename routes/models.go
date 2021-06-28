@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"time"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -13,9 +11,7 @@ type ExternalAuthUser struct {
 	UserName       string             `json:"name,omitempty" bson":name,omitempty"`
 	Email          string             `json:"link,omitempty" bson":link,omitempty`
 	Platform       string             `json:"platform,omitempty" bson:"platform,omitempty`
-	AccessToken    string             `json:"accesstoken,omitempty" bson:"accesstoken,omitempty"`
 	AvatarURL      string             `json:"avatarurl,omitempty" bson:"avatarurl,omitempty"`
-	ExpiresAt      time.Time          `json:"expiresat,omitempty" bson:"expiresat,omitempty"`
 }
 
 type HTTPError struct {

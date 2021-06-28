@@ -31,9 +31,7 @@ func CreateUser(ctx *fiber.Ctx, user goth.User) (*ExternalAuthUser, error) {
 		UserName:       user.Name,
 		Email:          user.Email,
 		Platform:       user.Provider,
-		AccessToken:    user.AccessToken,
 		AvatarURL:      user.AvatarURL,
-		ExpiresAt:      user.ExpiresAt,
 	}
 
 	res, err := collection.InsertOne(context.Background(), externalUser)
